@@ -28,6 +28,7 @@ import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.entities.Event;
+import uk.ac.man.cs.eventlite.entities.Venue;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(EventsControllerApi.class)
@@ -58,7 +59,11 @@ public class EventsControllerApiTest {
 		e.setName("Event");
 		e.setDate(LocalDate.now());
 		e.setTime(LocalTime.now());
-		e.setVenue(0);
+		Venue venue1 = new Venue();
+		venue1.setCapacity(500);
+		venue1.setName("Academy 1");
+		venue1.setId(1);
+		e.setVenue(venue1);
 		when(eventService.findAll()).thenReturn(Collections.<Event>singletonList(e));
 
 		mvc.perform(get("/api/events").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
