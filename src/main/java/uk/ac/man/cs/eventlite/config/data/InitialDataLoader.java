@@ -36,13 +36,14 @@ public class InitialDataLoader {
 	
 	private final static String DATA = "data/events.json";
 
+	Venue venue1;
 	@Bean
 	CommandLineRunner initDatabase() {
 		return args -> {
 			if (venueService.count() > 0) {
 				log.info("Database already populated with venues. Skipping venue initialization.");
 			} else {
-				Venue venue1 = new Venue();
+				venue1 = new Venue();
 				venue1.setCapacity(500);
 				venue1.setName("Academy 1");
 				venue1.setId(1);
@@ -53,10 +54,9 @@ public class InitialDataLoader {
 				log.info("Database already populated with events. Skipping event initialization.");
 			} else {
 				// Build and save initial events here.
-				Iterator<Venue> iterator = ((Iterable<Venue>) venueService).iterator();
-				eventService.save(new Event(1, "COMP23412 Showcase 01", LocalDate.of(2024, 05, 07), LocalTime.of(9, 0),iterator.next())); 
-				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 07), LocalTime.of(12, 0),iterator.next())); 
-				eventService.save(new Event(3, "COMP23412 Showcase 03", LocalDate.of(2024, 05, 07), LocalTime.of(15, 0),iterator.next())); 
+				eventService.save(new Event(1, "COMP23412 Showcase 01", LocalDate.of(2024, 05, 07), LocalTime.of(9, 0),venue1)); 
+				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 07), LocalTime.of(12, 0),venue1)); 
+				eventService.save(new Event(3, "COMP23412 Showcase 03", LocalDate.of(2024, 05, 07), LocalTime.of(15, 0),venue1)); 
 			}
 			
 		
