@@ -32,7 +32,7 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public long count() {
-		return 0;
+		return eventRepository.count();
 	}
 
 	@Override
