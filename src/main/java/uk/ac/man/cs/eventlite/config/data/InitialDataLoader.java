@@ -37,6 +37,7 @@ public class InitialDataLoader {
 	private final static String DATA = "data/events.json";
 
 	Venue venue1;
+	Venue venue2;
 	@Bean
 	CommandLineRunner initDatabase() {
 		return args -> {
@@ -44,10 +45,16 @@ public class InitialDataLoader {
 				log.info("Database already populated with venues. Skipping venue initialization.");
 			} else {
 				venue1 = new Venue();
-				venue1.setCapacity(500);
-				venue1.setName("Academy 1");
+				venue1.setCapacity(120);
+				venue1.setName("Kilburn Building");
 				venue1.setId(1);
-				venueService.save(venue1);;
+				venueService.save(venue1);
+				venue2 = new Venue();
+				venue2.setCapacity(100000);
+				venue2.setName("Online");
+				venue2.setId(2);
+				venueService.save(venue2);;
+				
 			}
 
 			if (eventService.count() > 0) {
