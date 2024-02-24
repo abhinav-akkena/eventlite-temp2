@@ -42,7 +42,7 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public Iterable<Event> search(String searchTerm) {
-		return null;
+		return eventRepository.findByNameLike("%" + searchTerm + "%");
 	}
 	
 	
