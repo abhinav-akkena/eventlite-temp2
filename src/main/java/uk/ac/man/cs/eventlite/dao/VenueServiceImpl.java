@@ -63,6 +63,16 @@ public class VenueServiceImpl implements VenueService {
 	public Venue save(Venue venue) {
 		return venueRepository.save(venue);
 	}
+	
+	public Venue findById(long id) {
+		Iterable<Venue> venues = venueRepository.findAll();
+        for (Venue venue : venues) {
+            if (venue.getId() == id) {
+                return venue;
+            }
+        }
+        return null; 
+	}
 
 
 }
