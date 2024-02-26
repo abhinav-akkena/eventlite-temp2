@@ -1,5 +1,7 @@
 package uk.ac.man.cs.eventlite.dao;
 import org.springframework.data.repository.CrudRepository;
+import java.util.Optional;
+
 
 import uk.ac.man.cs.eventlite.entities.Event;
 
@@ -10,4 +12,9 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 	public Event save(Event e);
 	
 	public Iterable<Event> findAllByOrderByDateAscTimeAsc();
+	
+
+   @Override
+    Optional<Event> findById(Long id);
+	
 }
