@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<head>
+  <title>All events</title>
+</head>
+<body>
+  <div layout:fragment="content">
+  <h1>Delete Event</h1>
+   <div sec:authorize="hasRole('ADMINISTRATOR')">
+  <form id="eventForm" th:action="@{/events/added}" method="post">
+  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+
+      <div>
+      <label for="eventID">Event ID:</label>
+      <input type="number" id="eventID" name="eventID" value="0" required>
+    </div>
+
+    <div>
+      <button type="submit">Delete Event</button>
+    </div>
+  </form>
+  </div>
+</div>
+  
+
+</body>
+</html>
