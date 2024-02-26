@@ -1,17 +1,62 @@
+
+
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/default}">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/default}">
+	
 <head>
-  <title>All events</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <title th:text="${event.name}">Event name</title> 
 </head>
 <body>
-  <div layout:fragment="content">
-    <h1 th:text="${event.name}">Event Name</h1>
+<body>
+    <div layout:fragment="content" class="container mt-4">
+		
+        <!-- Event details card -->
+        <div class="card border-light mb-3">
+            <div class="card-header text-white bg-secondary">
+                <h2 class="mb-0" th:text="${event.name}">Event Name</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+					
+                    <div class="col-md-6">
+				        <i class="fa-solid fa-calendar text-secondary"></i> 
+				        <span class="text-secondary">Date:</span>
+				        <span th:text="${event.date}">Event Date</span>
+                    </div>
+                    
+                    <div class="col-md-6">
+				        <i class="fa-solid fa-map-marker-alt text-secondary "></i>
+				        <span class="text-secondary">Venue:</span>
+				        <span th:text="${event.getVenue.getName}">Venue Name</span>
+                    </div>
+                    
+                </div>
+                <div class="row">
+					
+                    <div class="col-md-6">
+				        <i class="fa-solid fa-clock text-secondary "></i> 
+				        <span class="text-secondary">Time:</span>
+				        <span th:text="${event.time}">Event Time</span>						
+                    </div>
+                    
+                    <div class="col-md-6">
+						<i class="fa-solid fa-people-group text-secondary"></i>
+				        <span class="text-secondary">Capacity:</span>
+				        <span th:text="${event.getVenue.getCapacity}">Event Capacity</span>		
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
 
-  
-
-  </div>
-
+        <!-- Event description -->
+        <div class="card rounded-lg">
+            <div class="card-body">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec mattis sem in velit elementum, ut aliquet diam fringilla. Duis leo augue, placerat sed interdum et, ultrices at nibh. Proin malesuada et nunc ac bibendum. Integer ornare et nisl in aliquam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc in luctus dolor, sit amet mollis justo. Curabitur faucibus lorem sed imperdiet convallis. Duis sit amet pretium turpis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
