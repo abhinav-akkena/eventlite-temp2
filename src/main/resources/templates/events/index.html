@@ -8,15 +8,21 @@
 <body>
   <div layout:fragment="content">
     <h1>All events</h1>
-    
-    <form action="/events/search">
-      <div class="input-group mb3">
-        <input type="search" class="form-control" id="inputSearch" name="inputSearch" aria-describedby="searchBar" placeholder="Search for events">
-        <div class="input-group-append">
-            <button type="submit" class="btn btn-secondary">Submit</button>
-        </div>
-      </div>
-    </form>
+    <div class="d-flex w-100">
+	    <form action="/events/search" class="w-100 m-3">
+	      <div class="input-group mb3">
+	        <input type="search" class="form-control" id="inputSearch" name="inputSearch" aria-describedby="searchBar" placeholder="Search for events">
+	        <div class="input-group-append">
+	            <button type="submit" class="btn btn-secondary">Submit</button>
+	        </div>
+	      </div>
+	    </form>
+	     <div sec:authorize="hasRole('ADMINISTRATOR')" >
+	    	<a href="/events/add" class="btn btn-primary m-3" style="white-space: nowrap;">
+	    		<i class="fa-solid fa-plus"></i> Add Event
+	    	</a>
+	    </div>
+    </div>
 
     <table class="table table-striped table-hover">
       <thead>
@@ -25,7 +31,8 @@
           <th><i class="fa-solid fa-map-marker-alt"></i> Venue</th>
           <th><i class="fa-solid fa-calendar"></i> Date</th>
           <th><i class="fa-solid fa-clock"></i> Time</th>
-          <th>Edit</th>
+          <th sec:authorize="hasRole('ADMINISTRATOR')"  ><i class="fa-solid fa-edit"></i> Edit</th>
+          <th sec:authorize="hasRole('ADMINISTRATOR')"  ><i class="fa-solid fa-trash"></i> Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -39,14 +46,15 @@
           <td th:text="${{e.date}}">Event date</td>
           <td th:text="${{e.time}}">Event time</td>
           
-          <td>
-            <a th:href="@{/events/edit/{id}(id=${e.id})}" class="btn btn-primary">Edit</a>
+          <td sec:authorize="hasRole('ADMINISTRATOR')" >
+            <a th:href="@{/events/edit/{id}(id=${e.id})}" class="btn btn-primary"><i class="fa-solid fa-edit"></i></a>
+          </td>
+          <td sec:authorize="hasRole('ADMINISTRATOR')" >
+            <a th:href="@{/events/delete?id={id}(id=${e.id})}" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
           </td>
         </tr>
       </tbody>
     </table>
-	<a href="/events/add" >Go to Add Event Page</a>
-	<a href="/events/delete" >Go to Delete Event Page</a>
   </div>
   
 
