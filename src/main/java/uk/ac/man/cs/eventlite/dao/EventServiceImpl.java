@@ -46,4 +46,10 @@ public class EventServiceImpl implements EventService {
 	public void deleteById(long id) {
 		eventRepository.deleteById(id);
 	}
+
+	@Override
+	public Optional<Event> findById(Long id) {
+		// TODO Auto-generated method stub
+		return eventRepository.findById(id);
+	}
 }
