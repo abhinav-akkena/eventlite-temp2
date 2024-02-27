@@ -81,4 +81,26 @@ public class EventsControllerTest {
 		mvc.perform(get("/events/99").accept(MediaType.TEXT_HTML)).andExpect(status().isNotFound())
 				.andExpect(view().name("events/not_found")).andExpect(handler().methodName("getEvent"));
 	}
+	
+	@Test
+	public void searchEvents() throws Exception {
+		when(venue.getName()).thenReturn("Kilburn Building");
+
+		when(event.getVenue()).thenReturn(venue);
+		when(eventService.search("bean")).thenReturn(Collections.<Event>singletonList(event));
+		
+		mvc.perform(get("/events/search").accept(MediaType.TEXT_HTML).param("inputSearch", "bean")).andExpect(status().isOk())
+			.andExpect(view().name("events/index")).andExpect(handler().methodName("searchEvent"));
+	}
+	
+	@Test
+	public void searchNoEvents() throws Exception {
+		when(venue.getName()).thenReturn("Kilburn Building");
+
+		when(event.getVenue()).thenReturn(venue);
+		when(eventService.search("beanSequel")).thenReturn(Collections.<Event>emptyList());
+		
+		mvc.perform(get("/events/search").accept(MediaType.TEXT_HTML).param("inputSearch", "beanSequel")).andExpect(status().isOk())
+			.andExpect(view().name("events/index")).andExpect(handler().methodName("searchEvent"));
+	}
 }
