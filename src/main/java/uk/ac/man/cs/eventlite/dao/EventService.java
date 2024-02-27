@@ -11,4 +11,6 @@ public interface EventService {
 	public Event save(Event e);
 	
 	public Event findById(long id);
+	
+	public Iterable<Event> search(String searchTerm);
 }

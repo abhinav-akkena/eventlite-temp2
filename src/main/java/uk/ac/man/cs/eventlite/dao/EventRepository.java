@@ -12,9 +12,9 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 	public Event save(Event e);
 	
 	public Iterable<Event> findAllByOrderByDateAscTimeAsc();
-	
 
    @Override
     Optional<Event> findById(Long id);
 	
+	public Iterable<Event> findByNameLike(String name);
 }

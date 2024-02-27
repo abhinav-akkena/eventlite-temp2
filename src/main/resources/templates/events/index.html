@@ -8,6 +8,15 @@
 <body>
   <div layout:fragment="content">
     <h1>All events</h1>
+    
+    <form action="/events/search">
+      <div class="input-group mb3">
+        <input type="search" class="form-control" id="inputSearch" name="inputSearch" aria-describedby="searchBar" placeholder="Search for events">
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-secondary">Submit</button>
+        </div>
+      </div>
+    </form>
 
     <table class="table table-striped table-hover">
       <thead>
