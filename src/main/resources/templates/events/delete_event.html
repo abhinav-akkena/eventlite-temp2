@@ -9,7 +9,7 @@
   <div layout:fragment="content">
   <h1>Delete Event</h1>
    <div sec:authorize="hasRole('ADMINISTRATOR')">
-  <form id="eventForm" th:action="@{/events/added}" method="post">
+  <form id="eventForm" th:action="@{/events/deleted}" method="post">
   <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 
       <div>

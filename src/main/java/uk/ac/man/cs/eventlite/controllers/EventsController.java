@@ -71,7 +71,7 @@ public class EventsController {
 	
 	@PostMapping("/deleted")
 	public String deleteEvent(HttpServletRequest request) {
-		eventService.deleteById(Integer.parseInt(request.getParameter("eventID")));		
+		eventService.deleteById(Long.parseLong(request.getParameter("eventID")));		
 		return "redirect:/events";
 
 		
