@@ -33,16 +33,19 @@ public class Event {
 	//private long venue;
 	@ManyToOne
 	private Venue venue;
+	
+	private String description;
 
 	public Event() {
 	}
 	
-	public Event(long id, String name,LocalDate date,LocalTime time,Venue venue) {
+	public Event(long id, String name,LocalDate date,LocalTime time,Venue venue, String description) {
 		setId(id);
 		setName(name);
 		setDate(date);
 		setTime(time);
 		setVenue(venue);
+		setDescription(description);
 	}
 
 	public long getId() {
@@ -83,5 +86,13 @@ public class Event {
 
 	public void setVenue(Venue venue) {
 		this.venue = venue;
+	}
+	
+	public String getDescription() {
+		return this.description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

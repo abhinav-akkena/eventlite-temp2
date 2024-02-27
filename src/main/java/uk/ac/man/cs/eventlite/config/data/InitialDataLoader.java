@@ -35,6 +35,8 @@ public class InitialDataLoader {
 	private VenueService venueService;
 	
 	private final static String DATA = "data/events.json";
+	
+	private final static String descriptionPlaceholder = "a";
 
 	Venue venue1;
 	Venue venue2;
@@ -61,9 +63,9 @@ public class InitialDataLoader {
 				log.info("Database already populated with events. Skipping event initialization.");
 			} else {
 				// Build and save initial events here.
-				eventService.save(new Event(1, "COMP23412 Showcase 01", LocalDate.of(2024, 05, 7), LocalTime.of(9, 0),venue1)); 
-				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 7), LocalTime.of(12, 0),venue1)); 
-				eventService.save(new Event(3, "COMP23412 Showcase 03", LocalDate.of(2024, 05, 9), LocalTime.of(15, 0),venue1)); 
+				eventService.save(new Event(1, "COMP23412 Showcase 01", LocalDate.of(2024, 05, 7), LocalTime.of(9, 0),venue1,descriptionPlaceholder)); 
+				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 7), LocalTime.of(12, 0),venue1,descriptionPlaceholder)); 
+				eventService.save(new Event(3, "COMP23412 Showcase 03", LocalDate.of(2024, 05, 9), LocalTime.of(15, 0),venue1,descriptionPlaceholder)); 
 			}
 			
 		
