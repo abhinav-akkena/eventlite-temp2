@@ -9,18 +9,19 @@
   <div layout:fragment="content">
   <h1>Delete Event</h1>
    <div sec:authorize="hasRole('ADMINISTRATOR')">
-  <form id="eventForm" th:action="@{/events/deleted}" method="post">
-  <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-
-      <div>
-      <label for="eventID">Event ID:</label>
-      <input type="number" id="eventID" name="eventID" value="0" required>
-    </div>
-
-    <div>
-      <button type="submit">Delete Event</button>
-    </div>
-  </form>
+   	<div class="d-flex w-100 justify-content-center">
+	  <form id="eventForm" th:action="@{/events/deleted}" style="max-width:600px;" class="w-100" method="post">
+	  	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+	   	<div class="form-group">
+	      <label for="eventID">Event ID: </label>
+	      <input type="number" id="eventID" name="eventID" min=0 th:value="${id}" class="form-control" required>
+	    </div>
+	
+	    <div>
+	      <button type="submit" class="btn btn-danger w-100">Confirm Delete Event</button>
+	    </div>
+  	</form>
+  </div>
   </div>
 </div>
   

@@ -124,9 +124,10 @@ public class EventsController {
 	
 	@GetMapping("/delete")
 	@PreAuthorize("hasRole('ADMIN')")
-	public String deleteEventPage(HttpServletRequest request, Model model) {
+	public String deleteEventPage(@RequestParam(name = "id") String id, HttpServletRequest request, Model model) {
 		CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         model.addAttribute("_csrf", csrfToken);
+        model.addAttribute("id",id);
 		return "events/delete_event";
 	}
 	
