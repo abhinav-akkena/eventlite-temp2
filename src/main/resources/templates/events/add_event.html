@@ -7,6 +7,8 @@
 </head>
 <body>
   <div layout:fragment="content">
+  <button class="btn btn-outline" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+  
   <h1>Create New Event</h1>
    <div sec:authorize="hasRole('ADMINISTRATOR')" class="w-100 d-flex justify-content-center">
   <form id="eventForm" th:action="@{/events/added}" style="max-width:600px;" class="w-100" method="post">

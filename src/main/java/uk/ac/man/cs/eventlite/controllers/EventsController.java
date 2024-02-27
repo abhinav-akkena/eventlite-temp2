@@ -101,8 +101,9 @@ public class EventsController {
 	@PreAuthorize("hasRole('ADMIN')")
 	public String showUpdateForm(@PathVariable("id") long id, HttpServletRequest request, Model model) {
 	    Event event = eventService.findById(id).orElseThrow(() -> new EventNotFoundException(id));
+	    Iterable<Venue> venues = venueServices.findAll();
 	    model.addAttribute("event", event);
-	    
+	    model.addAttribute("venues", venues);
 	    CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         model.addAttribute("_csrf", csrfToken);
 	    
@@ -119,6 +120,7 @@ public class EventsController {
 	    event.setDate(LocalDate.parse(request.getParameter("date")));
 	    event.setTime(LocalTime.parse(request.getParameter("time")));
 	    event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
+	    event.setDescription(request.getParameter("description"));
 
 	    eventService.save(event);
 	    redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
