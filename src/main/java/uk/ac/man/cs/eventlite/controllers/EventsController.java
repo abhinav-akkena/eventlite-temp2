@@ -26,6 +26,7 @@ import uk.ac.man.cs.eventlite.dao.VenueServiceImpl;
 import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.exceptions.EventNotFoundException;
 
+
 @Controller
 @RequestMapping(value = "/events", produces = { MediaType.TEXT_HTML_VALUE })
 public class EventsController {
@@ -35,6 +36,7 @@ public class EventsController {
 
 	@Autowired
 	private VenueServiceImpl venueServices;
+
 
 	@ExceptionHandler(EventNotFoundException.class)
 	@ResponseStatus(HttpStatus.NOT_FOUND)
@@ -115,6 +117,22 @@ public class EventsController {
 	    redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
 	    
 	    return "redirect:/events";
+	}
+	
+	@GetMapping("/delete")
+	@PreAuthorize("hasRole('ADMIN')")
+	public String deleteEventPage(HttpServletRequest request, Model model) {
+		CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        model.addAttribute("_csrf", csrfToken);
+		return "events/delete_event";
+	}
+	
+	@PostMapping("/deleted")
+	public String deleteEvent(HttpServletRequest request) {
+		eventService.deleteById(Long.parseLong(request.getParameter("eventID")));		
+		return "redirect:/events";
+
+		
 	}
 
 }

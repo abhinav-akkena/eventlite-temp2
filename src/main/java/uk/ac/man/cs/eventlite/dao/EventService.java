@@ -14,4 +14,6 @@ public interface EventService {
 	
 	public Optional<Event> findById(Long id);
 
+	
+	public void deleteById(long id);
 }

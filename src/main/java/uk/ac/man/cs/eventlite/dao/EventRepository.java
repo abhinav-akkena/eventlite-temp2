@@ -10,4 +10,6 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 	public Event save(Event e);
 	
 	public Iterable<Event> findAllByOrderByDateAscTimeAsc();
+	
+	public void deleteById(long id);
 }
