@@ -87,4 +87,34 @@ public class EventsController {
 		return "redirect:/events";
 		
 	}
+	
+	@GetMapping("/edit/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public String showUpdateForm(@PathVariable("id") long id, HttpServletRequest request, Model model) {
+	    Event event = eventService.findById(id).orElseThrow(() -> new EventNotFoundException(id));
+	    model.addAttribute("event", event);
+	    
+	    CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+        model.addAttribute("_csrf", csrfToken);
+	    
+	    return "events/edit_event";
+	}
+
+	@PostMapping("/update/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public String updateEvent(@PathVariable("id") long id, HttpServletRequest request, RedirectAttributes redirectAttributes) {
+	    Event event = eventService.findById(id).orElseThrow(() -> new EventNotFoundException(id));
+	    
+	    // Update event properties from request parameters
+	    event.setName(request.getParameter("name"));
+	    event.setDate(LocalDate.parse(request.getParameter("date")));
+	    event.setTime(LocalTime.parse(request.getParameter("time")));
+	    event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
+
+	    eventService.save(event);
+	    redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
+	    
+	    return "redirect:/events";
+	}
+
 }
