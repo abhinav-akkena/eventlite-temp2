@@ -3,36 +3,38 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/default}">
 <head>
-  <title>All events</title>
+  <title>Add events</title>
 </head>
 <body>
   <div layout:fragment="content">
   <h1>Create New Event</h1>
-   <div sec:authorize="hasRole('ADMINISTRATOR')">
-  <form id="eventForm" th:action="@{/events/added}" method="post">
+   <div sec:authorize="hasRole('ADMINISTRATOR')" class="w-100 d-flex justify-content-center">
+  <form id="eventForm" th:action="@{/events/added}" style="max-width:600px;" class="w-100" method="post">
   <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-      <div>
+      <div class="form-group">
       <label for="name">Event Name:</label>
-      <input type="text" id="name" name="name" required>
+      <input type="text" id="name" name="name" class="form-control" required>
     </div>
-    <div>
+    <div class="form-group">
       <label for="date">Date:</label>
-      <input type="date" id="date" name="date" required>
+      <input type="date" id="date" name="date" class="form-control" required>
     </div>
-    <div>
+    <div class="form-group">
       <label for="time">Time:</label>
-      <input type="time" id="time" name="time" required>
+      <input type="time" id="time" name="time" class="form-control" required>
     </div>
-    <div>
+    <div class="form-group">
       <label for="venue">Venue:</label>
-      <input type="text" id="venue" name="venue" required>
+  	 	<select name="venue" id="venue" class="form-control" required>
+		  <option t th:each="venue : ${venues}" th:value="${venue.id}" th:text="${venue.name}">Volvo</option>
+		</select>
     </div>
-    <div>
+    <div class="form-group">
       <label for="description">Description:</label>
-      <textarea id="description" name="description" required></textarea>
+      <textarea id="description" name="description" class="form-control" required></textarea>
     </div>
-    <div>
-      <button type="submit">Add Event</button>
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Add Event</button>
     </div>
   </form>
   </div>

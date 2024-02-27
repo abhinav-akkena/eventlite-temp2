@@ -27,6 +27,8 @@ import uk.ac.man.cs.eventlite.dao.VenueServiceImpl;
 import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.exceptions.EventNotFoundException;
 import uk.ac.man.cs.eventlite.entities.Event;
+import uk.ac.man.cs.eventlite.entities.Venue;
+
 
 @Controller
 @RequestMapping(value = "/events", produces = { MediaType.TEXT_HTML_VALUE })
@@ -65,8 +67,10 @@ public class EventsController {
 	@GetMapping("/add")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String addEventPage(HttpServletRequest request, Model model) {
+		Iterable<Venue> venues = venueServices.findAll();
 		CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
         model.addAttribute("_csrf", csrfToken);
+        model.addAttribute("venues", venues);
 		return "events/add_event";
 	}
 	
@@ -86,7 +90,7 @@ public class EventsController {
 		event.setTime(LocalTime.parse(request.getParameter("time")));
 		event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
 		
-		System.out.println(request.getParameter("description"));
+		event.setDescription(request.getParameter("description"));
 		eventService.save(event);
 		
 		return "redirect:/events";
