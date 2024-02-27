@@ -23,38 +23,39 @@
 	    	</a>
 	    </div>
     </div>
-
-    <table class="table table-striped table-hover" style="overflow-x: auto; display: block">
-      <thead>
-        <tr>
-          <th><i class="fa-solid fa-bolt"></i> Event</th>
-          <th><i class="fa-solid fa-map-marker-alt"></i> Venue</th>
-          <th><i class="fa-solid fa-calendar"></i> Date</th>
-          <th><i class="fa-solid fa-clock"></i> Time</th>
-          <th sec:authorize="hasRole('ADMINISTRATOR')"  ><i class="fa-solid fa-edit"></i> Edit</th>
-          <th sec:authorize="hasRole('ADMINISTRATOR')"  ><i class="fa-solid fa-trash"></i> Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="e : ${events}">
-          <!-- <td th:text="${e.name}">My Event</td> -->
-		  <td>
-		  	<a th:href="@{/events/{eventId}(eventId=${e.id})}" th:text="${e.name}">Event Name</a>
-		  </td>
-          
-          <td th:text="${e.venue.name}">Event venue</td>
-          <td th:text="${{e.date}}">Event date</td>
-          <td th:text="${{e.time}}">Event time</td>
-          
-          <td sec:authorize="hasRole('ADMINISTRATOR')" >
-            <a th:href="@{/events/edit/{id}(id=${e.id})}" class="btn btn-primary"><i class="fa-solid fa-edit"></i></a>
-          </td>
-          <td sec:authorize="hasRole('ADMINISTRATOR')" >
-            <a th:href="@{/events/delete?id={id}(id=${e.id})}" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+	<div style="overflow-x: auto; display: block">
+	    <table class="table table-striped table-hover">
+	      <thead>
+	        <tr>
+	          <th><i class="fa-solid fa-bolt"></i> Event</th>
+	          <th><i class="fa-solid fa-map-marker-alt"></i> Venue</th>
+	          <th><i class="fa-solid fa-calendar"></i> Date</th>
+	          <th><i class="fa-solid fa-clock"></i> Time</th>
+	          <th sec:authorize="hasRole('ADMINISTRATOR')"  ><i class="fa-solid fa-edit"></i> Edit</th>
+	          <th sec:authorize="hasRole('ADMINISTRATOR')"  ><i class="fa-solid fa-trash"></i> Delete</th>
+	        </tr>
+	      </thead>
+	      <tbody>
+	        <tr th:each="e : ${events}">
+	          <!-- <td th:text="${e.name}">My Event</td> -->
+			  <td>
+			  	<a th:href="@{/events/{eventId}(eventId=${e.id})}" th:text="${e.name}">Event Name</a>
+			  </td>
+	          
+	          <td th:text="${e.venue.name}">Event venue</td>
+	          <td th:text="${{e.date}}">Event date</td>
+	          <td th:text="${{e.time}}">Event time</td>
+	          
+	          <td sec:authorize="hasRole('ADMINISTRATOR')" >
+	            <a th:href="@{/events/edit/{id}(id=${e.id})}" class="btn btn-primary"><i class="fa-solid fa-edit"></i></a>
+	          </td>
+	          <td sec:authorize="hasRole('ADMINISTRATOR')" >
+	            <a th:href="@{/events/delete?id={id}(id=${e.id})}" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
+	          </td>
+	        </tr>
+	      </tbody>
+	    </table>
+    </div>
   </div>
   
 
