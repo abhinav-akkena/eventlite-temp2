@@ -87,10 +87,18 @@ public class EventsController {
         event.setId(max);
 		event.setName(request.getParameter("name"));
 		event.setDate(LocalDate.parse(request.getParameter("date")));
-		event.setTime(LocalTime.parse(request.getParameter("time")));
+		String timeParameter = request.getParameter("time");
+		LocalTime t = null;
+		if (timeParameter != null && !timeParameter.isEmpty()) {
+		    t = LocalTime.parse(timeParameter);
+		}
+		event.setTime(t);
 		event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
-		
-		event.setDescription(request.getParameter("description"));
+		String desc = request.getParameter("description");
+		if (desc == null || desc.isEmpty()) {
+		    desc = null; // or set a default value
+		}
+		event.setDescription(desc);
 		eventService.save(event);
 		
 		return "redirect:/events";
@@ -118,9 +126,18 @@ public class EventsController {
 	    // Update event properties from request parameters
 	    event.setName(request.getParameter("name"));
 	    event.setDate(LocalDate.parse(request.getParameter("date")));
-	    event.setTime(LocalTime.parse(request.getParameter("time")));
-	    event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
-	    event.setDescription(request.getParameter("description"));
+	    String timeParameter = request.getParameter("time");
+		LocalTime t = null;
+		if (timeParameter != null && !timeParameter.isEmpty()) {
+		    t = LocalTime.parse(timeParameter);
+		}
+		event.setTime(t);
+		event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
+		String desc = request.getParameter("description");
+		if (desc == null || desc.isEmpty()) {
+		    desc = null; // or set a default value
+		}
+		event.setDescription(desc);
 
 	    eventService.save(event);
 	    redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
@@ -131,8 +148,6 @@ public class EventsController {
 	@GetMapping("/delete")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String deleteEventPage(@RequestParam(name = "id") String id, HttpServletRequest request, Model model) {
-		CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-        model.addAttribute("_csrf", csrfToken);
         model.addAttribute("id",id);
 		return "events/delete_event";
 	}
