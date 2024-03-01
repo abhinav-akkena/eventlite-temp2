@@ -32,7 +32,7 @@
 	          <th><i class="fa-solid fa-calendar"></i> Date</th>
 	          <th><i class="fa-solid fa-clock"></i> Time</th>
 	          <th sec:authorize="hasRole('ADMINISTRATOR')"  ><i class="fa-solid fa-edit"></i> Edit</th>
-	          <th sec:authorize="hasRole('ADMINISTRATOR')"  ><i class="fa-solid fa-trash"></i> Delete</th>
+	          
 	        </tr>
 	      </thead>
 	      <tbody>
@@ -48,9 +48,6 @@
 	          
 	          <td sec:authorize="hasRole('ADMINISTRATOR')" >
 	            <a th:href="@{/events/edit/{id}(id=${e.id})}" class="btn btn-primary"><i class="fa-solid fa-edit"></i></a>
-	          </td>
-	          <td sec:authorize="hasRole('ADMINISTRATOR')" >
-	            <a th:href="@{/events/delete?id={id}(id=${e.id})}" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
 	          </td>
 	        </tr>
 	      </tbody>
