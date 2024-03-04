@@ -1,6 +1,8 @@
 package uk.ac.man.cs.eventlite.dao;
 
 import java.io.InputStream;
+import java.time.LocalDate;
+
 import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.dao.EventRepository;
 
@@ -30,6 +32,35 @@ public class EventServiceImpl implements EventService {
 	public Iterable<Event> findAll(){
 		return eventRepository.findAllByOrderByDateAscTimeAsc();
 	}
+	
+	@Override
+    public Iterable<Event> findPast(){
+        Iterable<Event> allEvents = eventRepository.findAllByOrderByDateAscTimeAsc();
+        LocalDate today = LocalDate.now();
+        List<Event> res = new ArrayList<Event>();
+
+        for (Event e : allEvents) {
+                if(e.getDate().compareTo(today) < 0) {
+                        res.add(e);
+                }
+        }
+        return res;
+    }
+	
+	@Override
+    public Iterable<Event> findFuture(){
+        Iterable<Event> allEvents = eventRepository.findAllByOrderByDateAscTimeAsc();
+        LocalDate today = LocalDate.now();
+        List<Event> res = new ArrayList<Event>();
+
+        for (Event e : allEvents) {
+                if(e.getDate().compareTo(today) >= 0) {
+                        res.add(e);
+                }
+        }
+        return res;
+    }
+                
 
 	@Override
 	public long count() {
