@@ -61,7 +61,7 @@ public class EventsController {
 
 		model.addAttribute("events", eventService.findAll());
 		model.addAttribute("pastEvents", eventService.findPast());
-		model.addAttribute("futureEvents", eventService.findAll());
+		model.addAttribute("futureEvents", eventService.findFuture());
 
 		return "events/index";
 	}
