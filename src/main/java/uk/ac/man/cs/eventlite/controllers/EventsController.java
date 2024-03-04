@@ -60,6 +60,8 @@ public class EventsController {
 	public String getAllEvents(Model model) {
 
 		model.addAttribute("events", eventService.findAll());
+		model.addAttribute("pastEvents", eventService.findPast());
+		model.addAttribute("futureEvents", eventService.findAll());
 
 		return "events/index";
 	}
