@@ -87,4 +87,25 @@ public class EventServiceImpl implements EventService {
 		// TODO Auto-generated method stub
 		return eventRepository.findById(id);
 	}
+
+	@Override
+	public Iterable<Event> searchPast(String searchTerm) {
+		// TODO Auto-generated method stub
+		return eventRepository.findByNameLikeAndDateBefore("%" + searchTerm + "%", LocalDate.now());
+	}
+
+	@Override
+	public Iterable<Event> searchFuture(String searchTerm) {
+		// TODO Auto-generated method stub
+		Iterable<Event> allEvents = eventRepository.findByNameLike("%" + searchTerm + "%");
+        LocalDate today = LocalDate.now();
+        List<Event> res = new ArrayList<Event>();
+
+        for (Event e : allEvents) {
+                if(e.getDate().compareTo(today) >= 0) {
+                        res.add(e);
+                }
+        }
+        return res;
+	}
 }

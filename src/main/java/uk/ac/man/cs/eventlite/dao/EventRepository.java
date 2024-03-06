@@ -1,5 +1,7 @@
 package uk.ac.man.cs.eventlite.dao;
 import org.springframework.data.repository.CrudRepository;
+
+import java.time.LocalDate;
 import java.util.Optional;
 
 
@@ -19,4 +21,7 @@ public interface EventRepository extends CrudRepository<Event, Long> {
     Optional<Event> findById(Long id);
 	
 	public Iterable<Event> findByNameLike(String name);
+	
+	public Iterable<Event> findByNameLikeAndDateBefore(String name, LocalDate date);
+	
 }
