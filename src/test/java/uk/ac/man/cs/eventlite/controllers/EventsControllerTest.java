@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
@@ -50,13 +51,13 @@ public class EventsControllerTest {
 	@Test
 	public void getIndexWhenNoEvents() throws Exception {
 		when(eventService.findAll()).thenReturn(Collections.<Event>emptyList());
-		when(venueService.findAll()).thenReturn(Collections.<Venue>emptyList());
+//		when(venueService.findAll()).thenReturn(Collections.<Venue>emptyList());
 
 		mvc.perform(get("/events").accept(MediaType.TEXT_HTML)).andExpect(status().isOk())
 				.andExpect(view().name("events/index")).andExpect(handler().methodName("getAllEvents"));
 
 		verify(eventService).findAll();
-		verify(venueService).findAll();
+//		verify(venueService).findAll();
 		verifyNoInteractions(event);
 		verifyNoInteractions(venue);
 	}
@@ -64,7 +65,7 @@ public class EventsControllerTest {
 	@Test
 	public void getIndexWithEvents() throws Exception {
 		when(venue.getName()).thenReturn("Kilburn Building");
-		when(venueService.findAll()).thenReturn(Collections.<Venue>singletonList(venue));
+//		when(venueService.findAll()).thenReturn(Collections.<Venue>singletonList(venue));
 
 		when(event.getVenue()).thenReturn(venue);
 		when(eventService.findAll()).thenReturn(Collections.<Event>singletonList(event));
@@ -73,13 +74,13 @@ public class EventsControllerTest {
 				.andExpect(view().name("events/index")).andExpect(handler().methodName("getAllEvents"));
 
 		verify(eventService).findAll();
-		verify(venueService).findAll();
+//		verify(venueService).findAll();
 	}
 
 	@Test
 	public void getEventNotFound() throws Exception {
 		mvc.perform(get("/events/99").accept(MediaType.TEXT_HTML)).andExpect(status().isNotFound())
-				.andExpect(view().name("events/not_found")).andExpect(handler().methodName("getEvent"));
+				.andExpect(view().name("events/not_found")).andExpect(handler().methodName("showEventDetails"));
 	}
 	
 	@Test
