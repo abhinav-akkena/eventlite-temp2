@@ -176,7 +176,9 @@ public class EventsController {
 	@GetMapping("/search")
 	public String searchEvent(@RequestParam(name = "inputSearch") String searchTerm, Model model) {
 		
-		model.addAttribute("events", eventService.search(searchTerm));
+//		model.addAttribute("events", eventService.search(searchTerm));
+		model.addAttribute("pastEvents", eventService.searchPast(searchTerm));
+		model.addAttribute("futureEvents", eventService.searchFuture(searchTerm));
 		
 		return "events/index";
 	}

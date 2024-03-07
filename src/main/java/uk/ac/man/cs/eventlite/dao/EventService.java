@@ -22,4 +22,8 @@ public interface EventService {
 	public void deleteById(long id);
 		
 	public Iterable<Event> search(String searchTerm);
+
+	public Iterable<Event> searchPast(String searchTerm);
+	
+	public Iterable<Event> searchFuture(String searchTerm);
 }
