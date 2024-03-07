@@ -66,6 +66,7 @@ public class InitialDataLoader {
 				eventService.save(new Event(1, "COMP23412 Showcase 01", LocalDate.of(2024, 05, 7), LocalTime.of(9, 0),venue1,descriptionPlaceholder)); 
 				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 7), LocalTime.of(12, 0),venue1,descriptionPlaceholder)); 
 				eventService.save(new Event(3, "COMP23412 Showcase 03", LocalDate.of(2024, 05, 9), LocalTime.of(15, 0),venue1,descriptionPlaceholder)); 
+				eventService.save(new Event(4, "COMP23412 Showcase 04", LocalDate.of(2024, 03, 5), LocalTime.of(15, 0),venue1,descriptionPlaceholder)); 
 			}
 			
 		
