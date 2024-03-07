@@ -12,6 +12,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 
 @Entity
@@ -22,18 +25,24 @@ public class Event {
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@NotEmpty
+	@Future
 	private LocalDate date;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	@DateTimeFormat(pattern = "HH:mm")
 	private LocalTime time;
 
+	@NotEmpty
+	@Size(max=255, message="Event Name can't be more than 255 characters")
 	private String name;
 
 	//private long venue;
 	@ManyToOne
+	@NotEmpty
 	private Venue venue;
 	
+	@Size(max=499, message="Venue can't be longer than 499 characters")
 	private String description;
 
 	public Event() {

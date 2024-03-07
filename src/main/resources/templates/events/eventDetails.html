@@ -14,9 +14,15 @@
 		<button class="btn btn-outline" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i> Back</button>
         <!-- Event details card -->
         <div class="card border-light mb-3">
-            <div class="card-header text-white bg-secondary">
-                <h2 class="mb-0" th:text="${event.name}">Event Name</h2>
-            </div>
+            <div class="card-header text-white bg-secondary d-flex justify-content-between align-items-center">
+    <h2 class="mb-0" th:text="${event.name}">Event Name</h2>
+    
+    <div class="text-white">
+        <div sec:authorize="hasRole('ADMINISTRATOR')">
+            <a th:href="@{/events/delete?id={id}(id=${event.id})}" class="btn btn-danger"><i class="fa-solid fa-trash"></i></a>
+        </div>
+    </div>
+</div>
             <div class="card-body">
                 <div class="row">
 					
