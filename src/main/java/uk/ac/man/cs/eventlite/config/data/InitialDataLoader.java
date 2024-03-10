@@ -40,6 +40,7 @@ public class InitialDataLoader {
 
 	Venue venue1;
 	Venue venue2;
+	Venue venue3;
 	@Bean
 	CommandLineRunner initDatabase() {
 		return args -> {
@@ -49,13 +50,24 @@ public class InitialDataLoader {
 				venue1 = new Venue();
 				venue1.setCapacity(120);
 				venue1.setName("Kilburn Building");
+				venue1.setAddress("23 Manchester Road");
+				venue1.setPostcode("E14 3BD");
 				venue1.setId(1);
 				venueService.save(venue1);
 				venue2 = new Venue();
 				venue2.setCapacity(100000);
 				venue2.setName("Online");
+				venue2.setAddress("N/A");
+				venue2.setPostcode("N/A");
 				venue2.setId(2);
-				venueService.save(venue2);;
+				venueService.save(venue2);
+				venue3 = new Venue();
+				venue3.setCapacity(50000);
+				venue3.setName("AMBS Building");
+				venue3.setAddress("674 Manchester Road");
+				venue3.setPostcode("M14 5DS");
+				venue3.setId(3);
+				venueService.save(venue3);;
 				
 			}
 
