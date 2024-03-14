@@ -45,6 +45,10 @@
 	          <td sec:authorize="hasRole('ADMINISTRATOR')" >
 	            <a th:href="@{/venues/edit/{id}(id=${e.id})}" class="btn btn-primary"><i class="fa-solid fa-edit"></i></a>
 	          </td>
+	          
+			  <td sec:authorize="hasRole('ADMINISTRATOR')" >
+	            <a th:href="@{/venues/delete(id=${e.id})}" class="btn btn-danger w-100"><i class="fa-solid fa-cross"></i></a>
+	          </td>
 
 	        </tr>
 	      </tbody>

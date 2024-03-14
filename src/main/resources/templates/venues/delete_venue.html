@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<head>
+  <title>All Venues</title>
+</head>
+<body>
+  <div layout:fragment="content">
+  <button class="btn btn-outline" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+  
+  <h1>Delete Venue</h1>
+   <div sec:authorize="hasRole('ADMINISTRATOR')">
+   
+   	<div class="d-flex w-100 justify-content-center">
+	  <form id="venueForm" th:action="@{/venues/deleted}" style="max-width:600px;" class="w-100" method="post">
+	  	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+	   	<div class="form-group">
+	      <label for="venueID">Venue ID: </label>
+	      <input type="number" id="venueID" name="venueID" min=0 th:value="${id}" class="form-control" required>
+	    </div>
+	
+	    <div>
+	      <button type="submit" class="btn btn-danger w-100">Confirm Delete Venue</button>
+	    </div>
+  	</form>
+  </div>
+  </div>
+</div>
+  
+
+</body>
+</html>

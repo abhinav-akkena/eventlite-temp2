@@ -60,7 +60,7 @@ public class VenuesController {
 	@GetMapping("/edit/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String showUpdateForm(@PathVariable("id") long id, Model model) {
-	    Venue venue = venueServices.findById(id);
+	    Venue venue = venueServices.findById(id);	
 	    if (venue == null) {
 	        throw new VenueNotFoundException(id);
 	    }
@@ -85,6 +85,21 @@ public class VenuesController {
 	    redirectAttributes.addFlashAttribute("success", "Venue updated successfully!");
 
 	    return "redirect:/venues";
+	}
+	
+	@GetMapping("/delete")
+	@PreAuthorize("hasRole('ADMIN')")
+	public String deleteVenuePage(@RequestParam(name = "id") String id, HttpServletRequest request, Model model) {
+        model.addAttribute("id",id);
+		return "venues/delete_venue";
+	}
+	
+	@PostMapping("/deleted")
+	public String deleteVenue(HttpServletRequest request) {
+		venueServices.deleteById(Long.parseLong(request.getParameter("venueID")));	
+		return "redirect:/venues";
+
+		
 	}
 
 }

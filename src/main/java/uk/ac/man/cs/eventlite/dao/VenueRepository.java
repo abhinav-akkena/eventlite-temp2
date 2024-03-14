@@ -10,4 +10,6 @@ public interface VenueRepository extends CrudRepository<Venue, Long> {
 	
 	public Iterable<Venue> findAllByOrderByNameAsc();
 
+	public void deleteById(long id);
+
 }
