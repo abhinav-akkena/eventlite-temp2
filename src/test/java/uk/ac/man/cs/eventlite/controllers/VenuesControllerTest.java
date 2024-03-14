@@ -73,7 +73,7 @@ public class VenuesControllerTest {
 		when(venueService.search("spaghetti")).thenReturn(Collections.<Venue>singletonList(venue));
 		
 		mvc.perform(get("/venues/search").accept(MediaType.TEXT_HTML).param("inputSearch", "spaghetti")).andExpect(status().isOk())
-			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchEvent"));
+			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchVenue"));
 	}
 	
 	@Test
@@ -83,7 +83,7 @@ public class VenuesControllerTest {
 		when(venueService.search("spaghettiMeatballs")).thenReturn(Collections.<Venue>emptyList());
 		
 		mvc.perform(get("/venues/search").accept(MediaType.TEXT_HTML).param("inputSearch", "spaghettiMeatballs")).andExpect(status().isOk())
-			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchEvent"));
+			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchVenue"));
 	}
 
 }
