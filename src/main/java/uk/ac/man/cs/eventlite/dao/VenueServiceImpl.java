@@ -73,6 +73,12 @@ public class VenueServiceImpl implements VenueService {
         }
         return null; 
 	}
+	
+	@Override
+	public Iterable<Venue> search(String searchTerm) {
+		return venueRepository.findByNameLike("%" + searchTerm + "%");
+	}
+
 
 
 }
