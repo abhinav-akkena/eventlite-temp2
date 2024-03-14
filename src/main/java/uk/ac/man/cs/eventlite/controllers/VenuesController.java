@@ -2,6 +2,8 @@ package uk.ac.man.cs.eventlite.controllers;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
+import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
@@ -36,6 +39,9 @@ public class VenuesController {
 
 	@Autowired
 	private VenueService venueServices;
+
+	@Autowired
+	private EventService eventService;
 
 
 	@ExceptionHandler(VenueNotFoundException.class)
@@ -57,6 +63,18 @@ public class VenuesController {
 	public String showVenueDetails(@PathVariable("id") Long id, Model model) {
 	    Venue venue = venueServices.findById(id);
 	    model.addAttribute("venue", venue);
+	    
+	    List<Event> required = new ArrayList<Event>();
+	    
+	    Iterable<Event> upcoming = eventService.findFuture();
+	    
+        for (Event e : upcoming) {
+            if(e.getId() == id) {
+                    required.add(e);
+            }
+        }
+        model.addAttribute("events", required);
+	    
 	    return "venues/venueDetails"; 
 	}
 	
