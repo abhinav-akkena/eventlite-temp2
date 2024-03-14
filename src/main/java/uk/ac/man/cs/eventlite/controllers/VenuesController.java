@@ -30,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 import uk.ac.man.cs.eventlite.dao.VenueService;
+import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
 import uk.ac.man.cs.eventlite.exceptions.VenueNotFoundException;
 import uk.ac.man.cs.eventlite.entities.Venue;
@@ -112,5 +113,31 @@ public class VenuesController {
 		
 	}
 	
+	@GetMapping("/add")
+	@PreAuthorize("hasRole('ADMIN')")
+	public String addVenuePage(HttpServletRequest request, Model model) {
+		return "venues/add_venue";
+	}
+	
+	@PostMapping("/added")
+	public String addVenue(HttpServletRequest request) {
+		Venue venue = new Venue();
+		Iterable<Venue> events = venueServices.findAll();
+		long max = 0;
+        for (Venue ev : events) {
+            if (ev.getId() > max) {
+                max = ev.getId()+1;
+            }
+        }
+        venue.setId(max);
+		venue.setName(request.getParameter("name"));
+		venue.setCapacity(Integer.parseInt(request.getParameter("capacity")));
+		venue.setAddress(request.getParameter("address"));
+		venue.setPostcode(request.getParameter("post_code"));
+		venueServices.save(venue);
+		
+		return "redirect:/venues";
+		
+	}
 
 }
