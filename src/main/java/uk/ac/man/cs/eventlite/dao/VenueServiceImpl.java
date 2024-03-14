@@ -56,7 +56,7 @@ public class VenueServiceImpl implements VenueService {
 //
 //		return venues;
 		
-		return venueRepository.findAll();
+		return venueRepository.findAllByOrderByNameAsc();
 	}
 	
 	@Override
