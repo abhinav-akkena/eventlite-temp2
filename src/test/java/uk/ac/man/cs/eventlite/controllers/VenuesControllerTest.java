@@ -61,4 +61,25 @@ public class VenuesControllerTest {
 
 		verify(venueService).findAll();
 	}
+	
+	@Test
+	public void searchVenues() throws Exception {
+		when(venue.getName()).thenReturn("Kilburn Building");
+
+		when(venueService.search("spaghetti")).thenReturn(Collections.<Venue>singletonList(venue));
+		
+		mvc.perform(get("/venues/search").accept(MediaType.TEXT_HTML).param("inputSearch", "spaghetti")).andExpect(status().isOk())
+			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchEvent"));
+	}
+	
+	@Test
+	public void searchNoVenue() throws Exception {
+		when(venue.getName()).thenReturn("Kilburn Building");
+
+		when(venueService.search("spaghettiMeatballs")).thenReturn(Collections.<Venue>emptyList());
+		
+		mvc.perform(get("/venues/search").accept(MediaType.TEXT_HTML).param("inputSearch", "spaghettiMeatballs")).andExpect(status().isOk())
+			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchEvent"));
+	}
+
 }
