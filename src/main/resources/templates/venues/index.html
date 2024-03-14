@@ -6,7 +6,12 @@
   <title>All venues</title>
 </head>
 <body>
+
   <div layout:fragment="content">
+   <div th:if="${fail}" class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
+        <span th:text="${fail}"></span>
+    </div>
     <h1>All venues</h1>
     <div class="d-flex w-100">
 	    <form action="/venues/search" class="w-100 m-3">

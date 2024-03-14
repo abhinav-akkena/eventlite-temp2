@@ -95,11 +95,22 @@ public class VenuesController {
 	}
 	
 	@PostMapping("/deleted")
-	public String deleteVenue(HttpServletRequest request) {
-		venueServices.deleteById(Long.parseLong(request.getParameter("venueID")));	
-		return "redirect:/venues";
+	public String deleteVenue(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+
+		
+		try {		
+			venueServices.deleteById(Long.parseLong(request.getParameter("venueID")));	
+			return "redirect:/venues";
+		}
+		catch(Exception e){
+		    redirectAttributes.addFlashAttribute("fail", "Venue is associated with existing events. Cannot delete.");
+			return "redirect:/venues";
+
+		}
+		
 
 		
 	}
+	
 
 }
