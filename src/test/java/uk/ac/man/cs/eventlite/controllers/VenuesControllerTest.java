@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import uk.ac.man.cs.eventlite.assemblers.VenueModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
+import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.entities.Venue;
 
@@ -40,6 +41,9 @@ public class VenuesControllerTest {
 	@MockBean
 	private VenueService venueService;
 
+	@MockBean
+	private EventService eventService;
+	
 	@Test
 	public void getIndexWhenNoEvents() throws Exception {
 		when(venueService.findAll()).thenReturn(Collections.<Venue>emptyList());
@@ -69,7 +73,7 @@ public class VenuesControllerTest {
 		when(venueService.search("spaghetti")).thenReturn(Collections.<Venue>singletonList(venue));
 		
 		mvc.perform(get("/venues/search").accept(MediaType.TEXT_HTML).param("inputSearch", "spaghetti")).andExpect(status().isOk())
-			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchEvent"));
+			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchVenue"));
 	}
 	
 	@Test
@@ -79,7 +83,7 @@ public class VenuesControllerTest {
 		when(venueService.search("spaghettiMeatballs")).thenReturn(Collections.<Venue>emptyList());
 		
 		mvc.perform(get("/venues/search").accept(MediaType.TEXT_HTML).param("inputSearch", "spaghettiMeatballs")).andExpect(status().isOk())
-			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchEvent"));
+			.andExpect(view().name("venues/index")).andExpect(handler().methodName("searchVenue"));
 	}
 
 }
