@@ -57,7 +57,7 @@ public class VenuesController {
 	public String showVenueDetails(@PathVariable("id") Long id, Model model) {
 	    Venue venue = venueServices.findById(id);
 	    model.addAttribute("venue", venue);
-	    return "events/venueDetails"; 
+	    return "venues/venueDetails"; 
 	}
 	
 	
