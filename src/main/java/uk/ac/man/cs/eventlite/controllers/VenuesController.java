@@ -20,6 +20,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 import uk.ac.man.cs.eventlite.dao.VenueService;
@@ -48,6 +55,36 @@ public class VenuesController {
 	public String getAllVenues(Model model) {
 		model.addAttribute("venues", venueServices.findAll());
 		return "venues/index";
+	}
+	
+	@GetMapping("/edit/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public String showUpdateForm(@PathVariable("id") long id, Model model) {
+	    Venue venue = venueServices.findById(id);
+	    if (venue == null) {
+	        throw new VenueNotFoundException(id);
+	    }
+	    model.addAttribute("venue", venue);
+	    return "venues/edit_venue";
+	}
+
+	@PostMapping("/update/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
+	public String updateVenue(@PathVariable("id") long id, HttpServletRequest request, RedirectAttributes redirectAttributes) {
+	    Venue venue = venueServices.findById(id);
+	    if (venue == null) {
+	        throw new VenueNotFoundException(id);
+	    }
+
+	    venue.setName(request.getParameter("name"));
+	    venue.setAddress(request.getParameter("address"));
+	    venue.setCapacity(Integer.parseInt(request.getParameter("capacity")));
+	    venue.setPostcode(request.getParameter("postcode"));
+
+	    venueServices.save(venue);
+	    redirectAttributes.addFlashAttribute("success", "Venue updated successfully!");
+
+	    return "redirect:/venues";
 	}
 
 }
