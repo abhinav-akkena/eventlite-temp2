@@ -140,4 +140,13 @@ public class VenuesController {
 		
 	}
 
+	@GetMapping("/search")
+	public String searchEvent(@RequestParam(name = "inputSearch") String searchTerm, Model model) {
+		
+		model.addAttribute("venues", venueServices.search(searchTerm));
+		
+		return "venues/index";
+	}
+
+	
 }

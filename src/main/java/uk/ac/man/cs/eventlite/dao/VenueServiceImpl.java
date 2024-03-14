@@ -78,6 +78,11 @@ public class VenueServiceImpl implements VenueService {
 	public void deleteById(long id) {
 		 venueRepository.deleteById(id);
 	}
+		 
+	public Iterable<Venue> search(String searchTerm) {
+		return venueRepository.findByNameLike("%" + searchTerm + "%");
+
+	}
 
 
 
