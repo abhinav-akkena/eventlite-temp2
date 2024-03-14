@@ -80,7 +80,7 @@ public class VenueServiceImpl implements VenueService {
 	}
 		 
 	public Iterable<Venue> search(String searchTerm) {
-		return venueRepository.findByNameLike("%" + searchTerm + "%");
+		return venueRepository.findByNameLikeIgnoreCase("%" + searchTerm + "%");
 
 	}
 
