@@ -12,4 +12,6 @@ public interface VenueService {
 
 	public Venue findById(long parseLong);
 
+	public void deleteById(long id);
+
 }
