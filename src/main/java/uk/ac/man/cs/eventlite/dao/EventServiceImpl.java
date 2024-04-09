@@ -108,4 +108,10 @@ public class EventServiceImpl implements EventService {
         }
         return res;
 	}
+
+	@Override
+	public Iterable<Event> getNextThreeEvents(Long venueID) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -26,4 +26,6 @@ public interface EventService {
 	public Iterable<Event> searchPast(String searchTerm);
 	
 	public Iterable<Event> searchFuture(String searchTerm);
+	
+	public Iterable<Event> getNextThreeEvents(Long venueID);
 }

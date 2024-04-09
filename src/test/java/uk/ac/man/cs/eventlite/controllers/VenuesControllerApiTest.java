@@ -11,8 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +26,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import uk.ac.man.cs.eventlite.assemblers.VenueModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
+import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
+import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
 
 @ExtendWith(SpringExtension.class)
@@ -39,6 +41,9 @@ public class VenuesControllerApiTest {
 
 	@MockBean
 	private VenueService venueService;
+	
+	@MockBean
+	private EventService eventService;
 
 	@Test
 	public void getIndexWhenNoVenues() throws Exception {
@@ -72,6 +77,56 @@ public class VenuesControllerApiTest {
 		mvc.perform(get("/api/venues/99").accept(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.error", containsString("venue 99"))).andExpect(jsonPath("$.id", equalTo(99)))
 				.andExpect(handler().methodName("getVenue"));
+	}
+	
+	
+	@Test 
+	public void getNextThreeEvents() throws Exception {
+		Event event1 = new Event();
+		event1.setId(0);
+		event1.setName("Event 1");
+		event1.setDate(LocalDate.of(2024, 4, 8));
+		
+		Event event2 = new Event();
+		event2.setId(0);
+		event2.setName("Event 2");
+		event2.setDate(LocalDate.of(2024, 4, 9));
+		
+		Event event3 = new Event();
+		event3.setId(0);
+		event3.setName("Event 3");
+		event3.setDate(LocalDate.of(2024, 4, 10));
+		
+		when(eventService.getNextThreeEvents(0L)).thenReturn(List.of(event1, event2, event3));
+
+		mvc.perform(get("/api/venues/0/next3events").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(handler().methodName("getNextThreeEvents")).andExpect(jsonPath("$.length()", equalTo(2)))
+				.andExpect(jsonPath("$._links.self.href", endsWith("/api/venues/0/next3events")))
+				.andExpect(jsonPath("$._embedded.events.length()", equalTo(3)));
+
+		verify(eventService).getNextThreeEvents(0L);
+	}
+	
+	@Test 
+	public void getNextThreeEventsButTwo() throws Exception {
+		Event event1 = new Event();
+		event1.setId(0);
+		event1.setName("Event 1");
+		event1.setDate(LocalDate.of(2024, 4, 8));
+		
+		Event event2 = new Event();
+		event2.setId(0);
+		event2.setName("Event 2");
+		event2.setDate(LocalDate.of(2024, 4, 9));
+		
+		when(eventService.getNextThreeEvents(0L)).thenReturn(List.of(event1, event2));
+
+		mvc.perform(get("/api/venues/0/next3events").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(handler().methodName("getNextThreeEvents")).andExpect(jsonPath("$.length()", equalTo(2)))
+				.andExpect(jsonPath("$._links.self.href", endsWith("/api/venues/0/next3events")))
+				.andExpect(jsonPath("$._embedded.events.length()", equalTo(2)));
+
+		verify(eventService).getNextThreeEvents(0L);
 	}
 }
 
