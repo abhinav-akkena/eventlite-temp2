@@ -30,6 +30,7 @@ import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
+import uk.ac.man.cs.eventlite.exceptions.EventNotFoundException;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(EventsController.class)
@@ -110,22 +111,6 @@ public class EventsControllerTest {
 	
 	
 	
-//	@Test
-//	public void showEventDetailsWithValidId() throws Exception {
-//	    long validEventId = 1L;
-//	    when(eventService.findById(validEventId)).thenReturn(Optional.of(event));
-//	    when(event.getId()).thenReturn(validEventId);
-//	    when(event.getName()).thenReturn("Sample Event");
-//
-//	    mvc.perform(get("/events/{eventId}", validEventId))
-//	            .andExpect(status().isOk())
-//	            .andExpect(view().name("events/eventDetails"))
-//	            .andExpect(model().attributeExists("event"))
-//	            .andExpect(handler().methodName("showEventDetails"));
-//
-//	    verify(eventService).findById(validEventId);
-//	}
-	
     @Test
     public void showEventDetailsWithValidId() throws Exception {
         Long eventId = 1L;
@@ -140,6 +125,21 @@ public class EventsControllerTest {
                 .andExpect(view().name("events/eventDetails"))
                 .andExpect(model().attributeExists("event"))
                 .andExpect(model().attribute("event", mockEvent));
+    }
+    
+
+    @Test
+    public void showEventDetailsWithInvalidId() throws Exception {
+        long invalidEventId = 999L;
+        when(eventService.findById(invalidEventId)).thenThrow(new EventNotFoundException(invalidEventId));
+
+        mvc.perform(get("/events/{eventId}", invalidEventId))
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("events/not_found"))
+                .andExpect(model().attributeExists("not_found_id"))
+                .andExpect(handler().methodName("showEventDetails"));
+
+        verify(eventService).findById(invalidEventId);
     }
 	
 	
