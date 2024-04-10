@@ -70,8 +70,8 @@ public class VenuesControllerApi {
 			throw new VenueNotFoundException(id);
 		}
 		
-		ArrayList<Event> next3Events = (ArrayList<Event>) eventService.getNextThreeEvents(venue);
 		
-		return eventAssembler.toCollectionModel(next3Events);
+		return eventAssembler.toCollectionModel(eventService.getNextThreeEvents(venue))
+				.add(linkTo(methodOn(VenuesControllerApi.class).getNextThreeEvents(id)).withSelfRel());
 	}
 }
