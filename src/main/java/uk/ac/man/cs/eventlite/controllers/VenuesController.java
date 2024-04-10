@@ -80,6 +80,10 @@ public class VenuesController {
 	@GetMapping("{id}")
 	public String showVenueDetails(@PathVariable("id") Long id, Model model) {
 	    Venue venue = venueServices.findById(id);
+	    if (venue == null) {
+	        throw new VenueNotFoundException(id);
+	    }
+	    
 	    model.addAttribute("venue", venue);
 	    
 	    List<Event> required = new ArrayList<Event>();
