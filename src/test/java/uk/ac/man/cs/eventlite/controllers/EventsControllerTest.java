@@ -1,14 +1,17 @@
 package uk.ac.man.cs.eventlite.controllers;
 
 import static org.mockito.Mockito.verify;
+
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -104,4 +107,40 @@ public class EventsControllerTest {
 		mvc.perform(get("/events/search").accept(MediaType.TEXT_HTML).param("inputSearch", "beanSequel")).andExpect(status().isOk())
 			.andExpect(view().name("events/index")).andExpect(handler().methodName("searchEvent"));
 	}
+	
+	
+	
+//	@Test
+//	public void showEventDetailsWithValidId() throws Exception {
+//	    long validEventId = 1L;
+//	    when(eventService.findById(validEventId)).thenReturn(Optional.of(event));
+//	    when(event.getId()).thenReturn(validEventId);
+//	    when(event.getName()).thenReturn("Sample Event");
+//
+//	    mvc.perform(get("/events/{eventId}", validEventId))
+//	            .andExpect(status().isOk())
+//	            .andExpect(view().name("events/eventDetails"))
+//	            .andExpect(model().attributeExists("event"))
+//	            .andExpect(handler().methodName("showEventDetails"));
+//
+//	    verify(eventService).findById(validEventId);
+//	}
+	
+    @Test
+    public void showEventDetailsWithValidId() throws Exception {
+        Long eventId = 1L;
+        Event mockEvent = new Event();
+        mockEvent.setId(eventId);
+        mockEvent.setName("Sample Event");
+
+        when(eventService.findById(eventId)).thenReturn(Optional.of(mockEvent));
+
+        mvc.perform(get("/events/{eventId}", eventId))
+                .andExpect(status().isOk())
+                .andExpect(view().name("events/eventDetails"))
+                .andExpect(model().attributeExists("event"))
+                .andExpect(model().attribute("event", mockEvent));
+    }
+	
+	
 }
