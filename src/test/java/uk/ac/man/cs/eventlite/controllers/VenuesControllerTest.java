@@ -29,6 +29,8 @@ import uk.ac.man.cs.eventlite.config.Security;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.entities.Venue;
+import uk.ac.man.cs.eventlite.exceptions.EventNotFoundException;
+import uk.ac.man.cs.eventlite.exceptions.VenueNotFoundException;
 import uk.ac.man.cs.eventlite.entities.Event;
 
 @ExtendWith(SpringExtension.class)
@@ -113,12 +115,20 @@ public class VenuesControllerTest {
         verify(venueService).findById(venueId);
         verify(eventService).findFuture();
     }
-	
-	
-	
-	
-	
-	
-	
+    
+    @Test
+    public void showNonExistingVenue() throws Exception {
+        long invalidVenueId = 999L;
+        when(venueService.findById(invalidVenueId)).thenThrow(new VenueNotFoundException(invalidVenueId));
 
+        mvc.perform(get("/venues/{id}", invalidVenueId))
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("venues/not_found"))
+                .andExpect(model().attributeExists("not_found_id"))
+                .andExpect(handler().methodName("showVenueDetails"));
+
+        verify(venueService).findById(invalidVenueId);
+    }
+   
+	
 }
