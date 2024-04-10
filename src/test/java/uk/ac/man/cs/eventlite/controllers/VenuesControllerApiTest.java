@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.assemblers.VenueModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
 import uk.ac.man.cs.eventlite.dao.EventService;
@@ -33,7 +34,7 @@ import uk.ac.man.cs.eventlite.entities.Venue;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(VenuesControllerApi.class)
-@Import({ Security.class, VenueModelAssembler.class })
+@Import({ Security.class, VenueModelAssembler.class, EventModelAssembler.class })
 public class VenuesControllerApiTest {
 
 	@Autowired
@@ -97,14 +98,21 @@ public class VenuesControllerApiTest {
 		event3.setName("Event 3");
 		event3.setDate(LocalDate.of(2024, 4, 10));
 		
-		when(eventService.getNextThreeEvents(0L)).thenReturn(List.of(event1, event2, event3));
+		Venue venue = new Venue();
+		venue.setId(0);
+		venue.setName("Venue 1");
+		venue.setCapacity(1000);
+		
+		when(venueService.findById(0)).thenReturn(venue);
+		
+		when(eventService.getNextThreeEvents(venue)).thenReturn(List.of(event1, event2, event3));
 
 		mvc.perform(get("/api/venues/0/next3events").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(handler().methodName("getNextThreeEvents")).andExpect(jsonPath("$.length()", equalTo(2)))
 				.andExpect(jsonPath("$._links.self.href", endsWith("/api/venues/0/next3events")))
 				.andExpect(jsonPath("$._embedded.events.length()", equalTo(3)));
 
-		verify(eventService).getNextThreeEvents(0L);
+		verify(eventService).getNextThreeEvents(venue);
 	}
 	
 	@Test 
@@ -119,14 +127,21 @@ public class VenuesControllerApiTest {
 		event2.setName("Event 2");
 		event2.setDate(LocalDate.of(2024, 4, 9));
 		
-		when(eventService.getNextThreeEvents(0L)).thenReturn(List.of(event1, event2));
+		Venue venue = new Venue();
+		venue.setId(0);
+		venue.setName("Venue 1");
+		venue.setCapacity(1000);
+		
+		when(venueService.findById(0)).thenReturn(venue);
+		
+		when(eventService.getNextThreeEvents(venue)).thenReturn(List.of(event1, event2));
 
 		mvc.perform(get("/api/venues/0/next3events").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(handler().methodName("getNextThreeEvents")).andExpect(jsonPath("$.length()", equalTo(2)))
 				.andExpect(jsonPath("$._links.self.href", endsWith("/api/venues/0/next3events")))
 				.andExpect(jsonPath("$._embedded.events.length()", equalTo(2)));
 
-		verify(eventService).getNextThreeEvents(0L);
+		verify(eventService).getNextThreeEvents(venue);
 	}
 }
 

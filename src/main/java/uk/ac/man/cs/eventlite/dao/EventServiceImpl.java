@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 
 import uk.ac.man.cs.eventlite.entities.Event;
+import uk.ac.man.cs.eventlite.entities.Venue;
 import uk.ac.man.cs.eventlite.dao.EventRepository;
 
 import java.util.ArrayList;
@@ -110,8 +111,16 @@ public class EventServiceImpl implements EventService {
 	}
 
 	@Override
-	public Iterable<Event> getNextThreeEvents(Long venueID) {
-		// TODO Auto-generated method stub
-		return null;
+	public Iterable<Event> getNextThreeEvents(Venue venue) {
+		
+		List<Event> events = (List<Event>) eventRepository.findByVenueByDateAscTimeAsc(venue);
+		
+		List<Event> nextThreeEvents = new ArrayList<Event>();
+		
+		for (Event event : events) {
+//			if (event.getDate().isBefore(null))
+		}
+		
+		return events.subList(0, 3);
 	}
 }
