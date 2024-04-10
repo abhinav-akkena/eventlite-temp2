@@ -3,6 +3,9 @@ package uk.ac.man.cs.eventlite.controllers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -63,6 +66,12 @@ public class VenuesControllerApi {
 	public CollectionModel<EntityModel<Event>> getNextThreeEvents(@PathVariable("id") long id) {
 		Venue venue = venueService.findById(id);
 		
-		return eventAssembler.toCollectionModel(eventService.getNextThreeEvents(venue));
+		if (venue == null) {
+			throw new VenueNotFoundException(id);
+		}
+		
+		ArrayList<Event> next3Events = (ArrayList<Event>) eventService.getNextThreeEvents(venue);
+		
+		return eventAssembler.toCollectionModel(next3Events);
 	}
 }

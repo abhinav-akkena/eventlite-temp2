@@ -25,6 +25,6 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 	
 	public Iterable<Event> findByNameLikeAndDateBefore(String name, LocalDate date);
 	
-	public Iterable<Event> findByVenueByDateAscTimeAsc(Venue venue);
+	public Iterable<Event> findByVenueOrderByDateAscTimeAsc(Venue venue);
 	
 }
