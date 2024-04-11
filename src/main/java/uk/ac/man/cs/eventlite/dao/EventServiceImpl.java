@@ -2,8 +2,10 @@ package uk.ac.man.cs.eventlite.dao;
 
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import uk.ac.man.cs.eventlite.entities.Event;
+import uk.ac.man.cs.eventlite.entities.Venue;
 import uk.ac.man.cs.eventlite.dao.EventRepository;
 
 import java.util.ArrayList;
@@ -107,5 +109,32 @@ public class EventServiceImpl implements EventService {
                 }
         }
         return res;
+	}
+
+	@Override
+	public Iterable<Event> getNextThreeEvents(Venue venue) {
+		
+		List<Event> events = (List<Event>) eventRepository.findByVenueOrderByDateAscTimeAsc(venue);
+		
+		List<Event> nextThreeEvents = new ArrayList<Event>();
+		
+		
+		for (Event event : events) {
+			if (isFutureEvent(event)) {	
+				
+				if (nextThreeEvents.size() < 3) { 
+					nextThreeEvents.add(event);
+				} else {
+					break;
+				}
+				
+			}
+		}
+	
+		return nextThreeEvents;
+	}
+	
+	private boolean isFutureEvent(Event event) {
+		return event.getDate().isAfter(LocalDate.now()) || ( event.getDate().isEqual(LocalDate.now()) && event.getTime().isAfter(LocalTime.now()));
 	}
 }
