@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.entities.Event;
+import uk.ac.man.cs.eventlite.entities.Venue;
 import uk.ac.man.cs.eventlite.exceptions.EventNotFoundException;
 
 @RestController
@@ -43,6 +44,19 @@ public class EventsControllerApi {
 	public EntityModel<Event> getEvent(@PathVariable("id") long id) {
 		throw new EventNotFoundException(id);
 	}
+	
+	@GetMapping("/{id}/venue")
+    public ResponseEntity<Venue> getVenue(@PathVariable("id") long id) {
+        Event event = eventService.findById(id)
+                .orElseThrow(() -> new EventNotFoundException(id));
+        
+        Venue venue = event.getVenue();
+        if (venue == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok().body(venue);
+    }
 
 	@GetMapping
 	public CollectionModel<EntityModel<Event>> getAllEvents() {
