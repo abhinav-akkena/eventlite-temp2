@@ -6,6 +6,7 @@ import java.util.Optional;
 
 
 import uk.ac.man.cs.eventlite.entities.Event;
+import uk.ac.man.cs.eventlite.entities.Venue;
 
 public interface EventRepository extends CrudRepository<Event, Long> {
 
@@ -23,5 +24,7 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 	public Iterable<Event> findByNameLike(String name);
 	
 	public Iterable<Event> findByNameLikeAndDateBefore(String name, LocalDate date);
+	
+	public Iterable<Event> findByVenueOrderByDateAscTimeAsc(Venue venue);
 	
 }
