@@ -3,6 +3,9 @@ package uk.ac.man.cs.eventlite.controllers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -16,8 +19,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.assemblers.VenueModelAssembler;
+import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
+import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
 import uk.ac.man.cs.eventlite.exceptions.VenueNotFoundException;
 
@@ -29,9 +35,15 @@ public class VenuesControllerApi {
 
 	@Autowired
 	private VenueService venueService;
+	
+	@Autowired
+	private EventService eventService;
 
 	@Autowired
 	private VenueModelAssembler venueAssembler;
+	
+	@Autowired
+	private EventModelAssembler eventAssembler;
 
 	@ExceptionHandler(VenueNotFoundException.class)
 	public ResponseEntity<?> venueNotFoundHandler(VenueNotFoundException ex) {
@@ -48,5 +60,18 @@ public class VenuesControllerApi {
 	public CollectionModel<EntityModel<Venue>> getAllVenues() {
 		return venueAssembler.toCollectionModel(venueService.findAll())
 				.add(linkTo(methodOn(VenuesControllerApi.class).getAllVenues()).withSelfRel());
+	}
+	
+	@GetMapping("/{id}/next3events")
+	public CollectionModel<EntityModel<Event>> getNextThreeEvents(@PathVariable("id") long id) {
+		Venue venue = venueService.findById(id);
+		
+		if (venue == null) {
+			throw new VenueNotFoundException(id);
+		}
+		
+		
+		return eventAssembler.toCollectionModel(eventService.getNextThreeEvents(venue))
+				.add(linkTo(methodOn(VenuesControllerApi.class).getNextThreeEvents(id)).withSelfRel());
 	}
 }

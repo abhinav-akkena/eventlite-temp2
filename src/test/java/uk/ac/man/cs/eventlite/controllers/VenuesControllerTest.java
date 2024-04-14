@@ -1,27 +1,21 @@
 package uk.ac.man.cs.eventlite.controllers;
 
 import static org.mockito.Mockito.verify;
+
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-
-
 import java.util.Collections;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,11 +26,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import uk.ac.man.cs.eventlite.assemblers.VenueModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.entities.Venue;
+import uk.ac.man.cs.eventlite.exceptions.VenueNotFoundException;
+import uk.ac.man.cs.eventlite.entities.Event;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(VenuesController.class)
@@ -48,6 +43,11 @@ public class VenuesControllerTest {
 
 	@Mock
 	private Venue venue;
+	
+	@Mock
+	private Event event;
+	
+	
 
 	@MockBean
 	private VenueService venueService;
@@ -158,5 +158,37 @@ public class VenuesControllerTest {
 	            .andExpect(status().isForbidden());
 	}
 
-	
+    @Test
+    public void showExistingVenue() throws Exception {
+        Long venueId = 1L;
+        when(venueService.findById(venueId)).thenReturn(venue);
+        when(eventService.findFuture()).thenReturn(Arrays.asList(event));
+        when(event.getVenue()).thenReturn(venue);
+        when(venue.getId()).thenReturn(venueId);
+
+        mvc.perform(get("/venues/{id}", venueId))
+                .andExpect(status().isOk())
+                .andExpect(view().name("venues/venueDetails"))
+                .andExpect(model().attributeExists("venue"))
+                .andExpect(model().attributeExists("events"))
+                .andExpect(handler().methodName("showVenueDetails"));
+
+        verify(venueService).findById(venueId);
+        verify(eventService).findFuture();
+    }
+    
+    @Test
+    public void showNonExistingVenue() throws Exception {
+        long invalidVenueId = 999L;
+        when(venueService.findById(invalidVenueId)).thenThrow(new VenueNotFoundException(invalidVenueId));
+
+        mvc.perform(get("/venues/{id}", invalidVenueId))
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("venues/not_found"))
+                .andExpect(model().attributeExists("not_found_id"))
+                .andExpect(handler().methodName("showVenueDetails"));
+
+        verify(venueService).findById(invalidVenueId);
+    }
+   
 }
