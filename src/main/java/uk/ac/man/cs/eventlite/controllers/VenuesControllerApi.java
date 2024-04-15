@@ -55,7 +55,25 @@ public class VenuesControllerApi {
 
 	@GetMapping("/{id}")
 	public EntityModel<Venue> getVenue(@PathVariable("id") long id) {
-		throw new VenueNotFoundException(id);
+		Venue venue = venueService.findById(id);
+		
+		if (venue == null) {
+			throw new VenueNotFoundException(id);
+		}
+				
+		
+		EntityModel<Venue> em =  venueAssembler.toModel(venue);
+		
+		em.removeLinks();
+		// TODO: ADD /venues/<id>/events REL HERE
+
+		em.add(
+				linkTo(methodOn(VenuesControllerApi.class).getVenue(id)).withSelfRel(),
+				linkTo(methodOn(VenuesControllerApi.class).getVenue(id)).withRel("venue"),
+				linkTo(methodOn(VenuesControllerApi.class).getNextThreeEvents(id)).withRel("next3events")
+				);
+		
+		return em;
 	}
 
 	@GetMapping
