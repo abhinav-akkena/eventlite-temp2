@@ -9,11 +9,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 
@@ -21,25 +23,26 @@ import jakarta.validation.constraints.Size;
 @Table(name="events")
 public class Event {
 	@Id
+	@GeneratedValue
 	private long id;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	@NotEmpty
-	@Future
+	@NotNull(message="Date is a compulsory field")
+	@Future(message="Please choose a date in the future")
 	private LocalDate date;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING)
 	@DateTimeFormat(pattern = "HH:mm")
 	private LocalTime time;
 
-	@NotEmpty
+	@NotNull(message="Name is a compulsory field")
 	@Size(max=255, message="Event Name can't be more than 255 characters")
 	private String name;
 
 	//private long venue;
 	@ManyToOne
-	@NotEmpty
+	@NotNull(message="Venue is a compulsory field")
 	private Venue venue;
 	
 	@Size(max=499, message="Venue can't be longer than 499 characters")

@@ -2,6 +2,7 @@ package uk.ac.man.cs.eventlite.controllers;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
@@ -11,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -21,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import aj.org.objectweb.asm.Attribute;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.dao.VenueServiceImpl;
@@ -78,32 +83,30 @@ public class EventsController {
 	}
 	
 	@PostMapping("/added")
-	public String addEvent(HttpServletRequest request) {
-		Event event = new Event();
-		Iterable<Event> events = eventService.findAll();
-		long max = 0;
-        for (Event ev : events) {
-            if (ev.getId() > max) {
-                max = ev.getId()+1;
-            }
+	public String addEvent(@Valid Event event, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
+		try {
+			if(error.hasErrors()) {
+				String ErrorMessage= "Error: Please fix these problems : ";
+				List<ObjectError> errors = error.getAllErrors();
+				for (ObjectError e: errors) {
+					ErrorMessage += e.getDefaultMessage() + " & ";
+				}
+				
+				ErrorMessage = ErrorMessage.substring(0, ErrorMessage.length()-2);
+				redirectAttributes.addFlashAttribute("errorMessage", ErrorMessage);
+				Iterable<Venue> venues = venueServices.findAll();
+				redirectAttributes.addFlashAttribute("venues", venues);
+				return "redirect:/events/add";
+			}
+			else {
+				eventService.save(event);
+		       
+			}
+        }catch(Exception e) {
+        	System.out.println("Hemlo");
+        	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        	return "redirect:/events/add_event";
         }
-        event.setId(max);
-		event.setName(request.getParameter("name"));
-		event.setDate(LocalDate.parse(request.getParameter("date")));
-		String timeParameter = request.getParameter("time");
-		LocalTime t = null;
-		if (timeParameter != null && !timeParameter.isEmpty()) {
-		    t = LocalTime.parse(timeParameter);
-		}
-		event.setTime(t);
-		event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
-		String desc = request.getParameter("description");
-		if (desc == null || desc.isEmpty()) {
-		    desc = null; // or set a default value
-		}
-		event.setDescription(desc);
-		eventService.save(event);
-		
 		return "redirect:/events";
 		
 	}
@@ -123,27 +126,30 @@ public class EventsController {
 
 	@PostMapping("/update/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public String updateEvent(@PathVariable("id") long id, HttpServletRequest request, RedirectAttributes redirectAttributes) {
-	    Event event = eventService.findById(id).orElseThrow(() -> new EventNotFoundException(id));
-	    
-	    // Update event properties from request parameters
-	    event.setName(request.getParameter("name"));
-	    event.setDate(LocalDate.parse(request.getParameter("date")));
-	    String timeParameter = request.getParameter("time");
-		LocalTime t = null;
-		if (timeParameter != null && !timeParameter.isEmpty()) {
-		    t = LocalTime.parse(timeParameter);
-		}
-		event.setTime(t);
-		event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
-		String desc = request.getParameter("description");
-		if (desc == null || desc.isEmpty()) {
-		    desc = null; // or set a default value
-		}
-		event.setDescription(desc);
+	public String updateEvent(@PathVariable("id") long id, BindingResult error, HttpServletRequest request, RedirectAttributes redirectAttributes) {	
+			
+		    Event event = eventService.findById(id).orElseThrow(() -> new EventNotFoundException(id));
+		    
+		    // Update event properties from request parameters
+		    event.setName(request.getParameter("name"));
+		    event.setDate(LocalDate.parse(request.getParameter("date")));
+		    String timeParameter = request.getParameter("time");
+			LocalTime t = null;
+			if (timeParameter != null && !timeParameter.isEmpty()) {
+			    t = LocalTime.parse(timeParameter);
+			}
+			event.setTime(t);
+			event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
+			String desc = request.getParameter("description");
+			if (desc == null || desc.isEmpty()) {
+			    desc = null; // or set a default value
+			}
+			event.setDescription(desc);
+	
+		    eventService.save(event);
+		    redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
+			
 
-	    eventService.save(event);
-	    redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
 	    
 	    return "redirect:/events";
 	}
