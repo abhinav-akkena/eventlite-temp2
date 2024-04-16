@@ -91,13 +91,33 @@ public class VenuesControllerApiTest {
 
 		verify(venueService).findAll();
 	}
-
+	
 	@Test
 	public void getVenueNotFound() throws Exception {
 		mvc.perform(get("/api/venues/99").accept(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.error", containsString("venue 99"))).andExpect(jsonPath("$.id", equalTo(99)))
 				.andExpect(handler().methodName("getVenue"));
 	}
+
+	@Test
+	public void getVenueFoundWithLinks() throws Exception {
+		Venue e = new Venue();
+		e.setId(0);
+		e.setName("Venue1");
+		e.setCapacity(1000);
+		when(venueService.findById(1)).thenReturn(e);
+		
+		mvc.perform(get("/api/venues/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+			.andExpect(jsonPath("$.name", equalTo("Venue1")))
+			.andExpect(jsonPath("$.capacity", equalTo(1000)))
+			.andExpect(jsonPath("$._links.self.href", endsWith("/api/venues/1")))
+			.andExpect(jsonPath("$._links.venue.href", endsWith("/api/venues/1")))
+			.andExpect(jsonPath("$._links.events.href", endsWith("/api/venues/1/events")))
+			.andExpect(jsonPath("$._links.next3events.href", endsWith("/api/venues/1/next3events")));
+	}
+	
+	
+	
 	
 	
 	@Test 
