@@ -1,6 +1,7 @@
 package uk.ac.man.cs.eventlite.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,82 @@ public class VenueServiceTest extends AbstractTransactionalJUnit4SpringContextTe
 		venue.setName("Academy 1");
 		venue.setCapacity(500);
 		
+		
+		long initialCount = venueService.count();
+		venueService.save(venue);
+		assertEquals(venueService.count(), initialCount+1);
+	}
+	
+	@Test
+	public void testVenueLongLatSet1() {
+		Venue venue = new Venue();
+		venue.setId(1);
+		venue.setName("Academy 1");
+		venue.setCapacity(500);
+		venue.setAddress("Manchester University Students Union, Oxford Rd, Manchester");
+		venue.setPostcode("M13 9PR");
+		
+		venueService.save(venue);
+		
+		venue = venueService.findById(1);
+		
+		double expectedLong = -2.231285012788957;
+		double expectedLat = 53.4632662088948;
+		
+		double distance = Math.sqrt(Math.pow(expectedLong-venue.getLongitude(),2) + Math.pow(expectedLong-venue.getLongitude(),2));
+		
+		assertTrue(distance<4);
+	}
+	
+	@Test
+	public void testVenueLongLatSet2() {
+		Venue venue = new Venue();
+		venue.setId(1);
+		venue.setName("O2 Apollo");
+		venue.setCapacity(500);
+		venue.setAddress("O2 Apollo, Stockport Rd, Manchester");
+		venue.setPostcode("M12 6AP");
+		
+		venueService.save(venue);
+		
+		venue = venueService.findById(1);
+		
+		double expectedLong =-2.3045419;
+		double expectedLat = 53.4695392;
+		
+		double distance = Math.sqrt(Math.pow(expectedLong-venue.getLongitude(),2) + Math.pow(expectedLong-venue.getLongitude(),2));
+		
+		assertTrue(distance<4);
+	}
+	
+	@Test
+	public void testVenueLongLatSet3() {
+		Venue venue = new Venue();
+		venue.setId(1);
+		venue.setName("Lyceum Theatre");
+		venue.setCapacity(500);
+		venue.setAddress("Lyceum Theatre, Heath St, Crewe ");
+		venue.setPostcode("CW1 2DA");
+		
+		venueService.save(venue);
+		
+		venue = venueService.findById(1);
+		
+		double expectedLong = -2.4403216;
+		double expectedLat = 53.099048;
+		
+		double distance = Math.sqrt(Math.pow(expectedLong-venue.getLongitude(),2) + Math.pow(expectedLong-venue.getLongitude(),2));
+		
+		assertTrue(distance<4);
+	}
+	
+	@Test
+	public void testVenueLongLatSetWhenAddressNotSet() {
+		Venue venue = new Venue();
+		venue.setName("Academy 1");
+		venue.setCapacity(500);
+		venue.setAddress("");
+		venue.setPostcode("");
 		
 		long initialCount = venueService.count();
 		venueService.save(venue);
