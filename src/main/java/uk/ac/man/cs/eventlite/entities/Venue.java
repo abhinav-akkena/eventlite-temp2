@@ -20,6 +20,10 @@ public class Venue {
 	private String address;
 	
 	private String postcode;
+	
+	private double longitude = 0.0;
+	
+	private double latitude = 0.0;
 
 	public Venue() {
 	}
@@ -62,5 +66,21 @@ public class Venue {
 
 	public void setPostcode(String postcode) {
 		this.postcode = postcode;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(double latitude2) {
+		this.latitude = latitude2;
 	}
 }
