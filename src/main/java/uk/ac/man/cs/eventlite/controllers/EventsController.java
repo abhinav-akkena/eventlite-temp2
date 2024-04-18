@@ -2,6 +2,7 @@ package uk.ac.man.cs.eventlite.controllers;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,7 @@ public class EventsController {
 		model.addAttribute("events", eventService.findAll());
 		model.addAttribute("pastEvents", eventService.findPast());
 		model.addAttribute("futureEvents", eventService.findFuture());
+		model.addAttribute("mastodonPosts", Collections.emptyList());
 
 		return "events/index";
 	}
@@ -185,6 +187,7 @@ public class EventsController {
 //		model.addAttribute("events", eventService.search(searchTerm));
 		model.addAttribute("pastEvents", eventService.searchPast(searchTerm));
 		model.addAttribute("futureEvents", eventService.searchFuture(searchTerm));
+		model.addAttribute("mastodonPosts", Collections.emptyList());
 		
 		return "events/index";
 	}
