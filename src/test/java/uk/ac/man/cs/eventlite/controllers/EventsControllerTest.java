@@ -113,10 +113,13 @@ public class EventsControllerTest {
 	
     @Test
     public void showEventDetailsWithValidId() throws Exception {
+        Venue mockVenue = new Venue();
+        
         Long eventId = 1L;
         Event mockEvent = new Event();
         mockEvent.setId(eventId);
         mockEvent.setName("Sample Event");
+        mockEvent.setVenue(mockVenue);
 
         when(eventService.findById(eventId)).thenReturn(Optional.of(mockEvent));
 
