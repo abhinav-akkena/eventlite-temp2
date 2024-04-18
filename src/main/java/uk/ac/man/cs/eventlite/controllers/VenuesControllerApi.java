@@ -70,6 +70,7 @@ public class VenuesControllerApi {
 		em.add(
 				linkTo(methodOn(VenuesControllerApi.class).getVenue(id)).withSelfRel(),
 				linkTo(methodOn(VenuesControllerApi.class).getVenue(id)).withRel("venue"),
+				linkTo(methodOn(VenuesControllerApi.class).getEventsForVenue(id)).withRel("events"),
 				linkTo(methodOn(VenuesControllerApi.class).getNextThreeEvents(id)).withRel("next3events")
 				);
 		
@@ -98,5 +99,16 @@ public class VenuesControllerApi {
 		
 		return eventAssembler.toCollectionModel(eventService.getNextThreeEvents(venue))
 				.add(linkTo(methodOn(VenuesControllerApi.class).getNextThreeEvents(id)).withSelfRel());
+	}
+	
+	@GetMapping("/{id}/events")
+	public CollectionModel<EntityModel<Event>> getEventsForVenue(@PathVariable("id") long id) {
+		Venue venue = venueService.findById(id);
+		
+		if (venue == null) {
+			throw new VenueNotFoundException(id);
+		}
+		return eventAssembler.toCollectionModel(eventService.getEventsForVenue(venue))
+				.add(linkTo(methodOn(VenuesControllerApi.class).getEventsForVenue(id)).withSelfRel());
 	}
 }
