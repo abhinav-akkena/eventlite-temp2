@@ -54,6 +54,38 @@
                 <p th:text="${event.description}">Event Description</p>
             </div>
         </div>
+        <div id ="map"></div>
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+	mapboxgl.accessToken = 'pk.eyJ1IjoiYWFwOTAwMiIsImEiOiJjbHYyYW84eHowOGM0MmlwZm94cXEwbWo1In0.eCue2SRjuxU3jwYyac_vNg';
+    
+    
+    const name = /*[[${event.name}]]*/"";
+    const time = /*[[${event.time}]]*/"";
+    const longitude = /*[[${event.venue.latitude}]]*/"";;
+    const latitude = /*[[${event.venue.latitude}]]*/"";;
+    
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [longitude, latitude],
+        zoom: 8
+    });
+    
+    const marker1 = new mapboxgl.Marker()
+        .setLngLat([longitude, latitude])
+  .setPopup(
+    new mapboxgl.Popup({ offset: 25 })
+      .setHTML(
+        `<h3>${name}</h3><p>${time}</p>`
+      )
+  )
+  .addTo(map);
+  /*]]>*/
+      
+    </script>
+    
+        
     </div>
 </body>
 </html>
