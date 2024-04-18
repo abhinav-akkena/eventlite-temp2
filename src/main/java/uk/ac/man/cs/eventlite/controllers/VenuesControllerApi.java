@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.assemblers.VenueModelAssembler;
@@ -53,13 +55,36 @@ public class VenuesControllerApi {
 
 	@GetMapping("/{id}")
 	public EntityModel<Venue> getVenue(@PathVariable("id") long id) {
-		throw new VenueNotFoundException(id);
+		Venue venue = venueService.findById(id);
+		
+		if (venue == null) {
+			throw new VenueNotFoundException(id);
+		}
+				
+		
+		EntityModel<Venue> em =  venueAssembler.toModel(venue);
+		
+		em.removeLinks();
+		// TODO: ADD /venues/<id>/events REL HERE
+
+		em.add(
+				linkTo(methodOn(VenuesControllerApi.class).getVenue(id)).withSelfRel(),
+				linkTo(methodOn(VenuesControllerApi.class).getVenue(id)).withRel("venue"),
+				linkTo(methodOn(VenuesControllerApi.class).getNextThreeEvents(id)).withRel("next3events")
+				);
+		
+		return em;
 	}
 
 	@GetMapping
 	public CollectionModel<EntityModel<Venue>> getAllVenues() {
+		String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+		String profileLink = baseUrl+"/api/profile/venues";
 		return venueAssembler.toCollectionModel(venueService.findAll())
-				.add(linkTo(methodOn(VenuesControllerApi.class).getAllVenues()).withSelfRel());
+				.add(
+						linkTo(methodOn(VenuesControllerApi.class).getAllVenues()).withSelfRel(),
+						 Link.of(profileLink).withRel("profile")
+						 );
 	}
 	
 	@GetMapping("/{id}/next3events")
