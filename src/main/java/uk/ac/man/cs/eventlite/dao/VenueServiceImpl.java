@@ -78,6 +78,8 @@ public class VenueServiceImpl implements VenueService {
 				  .build();
 		
 		mapboxGeocoding.enqueueCall(new Callback<GeocodingResponse>() {
+			
+			
 			  @Override
 			  public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
 				  Geometry geometry = response.body().features().get(2).geometry();
@@ -89,8 +91,9 @@ public class VenueServiceImpl implements VenueService {
                       venue.setLatitude(latitude);
                       venue.setLongitude(longitude);
                       System.out.println("Venue new location: "+Double.toString(latitude)+", "+Double.toString(longitude));
+                      venueRepository.save(venue);
                   }
-//			   venue.setLatitude(response.body());
+				  //			   venue.setLatitude(response.body());
 			  	}
 			  	@Override
 			  	public void onFailure(Call<GeocodingResponse> call, Throwable t) {
@@ -98,6 +101,7 @@ public class VenueServiceImpl implements VenueService {
 			  	}
 			 });
 		
+		System.out.println("laksjdhfalksjhflakjshn");
 		return venue;
 		
 	}
@@ -106,8 +110,10 @@ public class VenueServiceImpl implements VenueService {
 	
 	@Override
 	public Venue save(Venue venue) {
-		venue = getLongLat(venue);
-		return venueRepository.save(venue);
+		return getLongLat(venueRepository.save(venue));
+//		venue.setLatitude(50);
+//        venue.setLongitude(50);
+//		return venueRepository.save(venue);
 	}
 	
 	public Venue findById(long id) {

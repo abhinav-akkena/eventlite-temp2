@@ -50,8 +50,8 @@ public class InitialDataLoader {
 				venue1 = new Venue();
 				venue1.setCapacity(120);
 				venue1.setName("Kilburn Building");
-				venue1.setAddress("23 Manchester Road");
-				venue1.setPostcode("E14 3BD");
+				venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+				venue1.setPostcode("M13 9PL");
 				venue1.setId(1);
 				venueService.save(venue1);
 				venue2 = new Venue();
