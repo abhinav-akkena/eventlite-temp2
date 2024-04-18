@@ -91,7 +91,7 @@ public class VenuesController {
 	    Iterable<Event> upcoming = eventService.findFuture();
 	    
         for (Event e : upcoming) {
-            if(e.getId() == id) {
+            if(e.getVenue().getId() == id) {
                     required.add(e);
             }
         }

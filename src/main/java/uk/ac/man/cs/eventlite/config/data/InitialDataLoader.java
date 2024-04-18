@@ -68,6 +68,8 @@ public class InitialDataLoader {
 				venue3.setName("AMBS Building");
 				venue3.setAddress("674 Manchester Road");
 				venue3.setPostcode("M14 5DS");
+				venue3.setLatitude(53.467659);
+				venue3.setLongitude(-2.238140);
 				venue3.setId(3);
 				venueService.save(venue3);;
 				
