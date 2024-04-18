@@ -134,6 +134,15 @@ public class EventServiceImpl implements EventService {
 		return nextThreeEvents;
 	}
 	
+	@Override
+	public Iterable<Event> getEventsForVenue(Venue venue){
+		List<Event> events = (List<Event>) eventRepository.findByVenueOrderByDateAscTimeAsc(venue);
+		
+		return events;
+	}
+	
+
+	
 	private boolean isFutureEvent(Event event) {
 		return event.getDate().isAfter(LocalDate.now()) || ( event.getDate().isEqual(LocalDate.now()) && event.getTime().isAfter(LocalTime.now()));
 	}
