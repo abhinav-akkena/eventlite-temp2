@@ -53,6 +53,8 @@ public class InitialDataLoader {
 				venue1.setAddress("23 Manchester Road");
 				venue1.setPostcode("E14 3BD");
 				venue1.setId(1);
+				venue1.setLatitude(53.468288);
+				venue1.setLongitude(-2.235450);
 				venueService.save(venue1);
 				venue2 = new Venue();
 				venue2.setCapacity(100000);
@@ -76,7 +78,7 @@ public class InitialDataLoader {
 			} else {
 				// Build and save initial events here.
 				eventService.save(new Event(1, "COMP23412 Showcase 01", LocalDate.of(2024, 05, 7), LocalTime.of(9, 0),venue1,descriptionPlaceholder)); 
-				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 7), LocalTime.of(12, 0),venue1,descriptionPlaceholder)); 
+				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 7), LocalTime.of(12, 0),venue3,descriptionPlaceholder)); 
 				eventService.save(new Event(3, "COMP23412 Showcase 03", LocalDate.of(2024, 05, 9), LocalTime.of(15, 0),venue1,descriptionPlaceholder)); 
 				eventService.save(new Event(4, "COMP23412 Showcase 04", LocalDate.of(2024, 03, 5), LocalTime.of(15, 0),venue1,descriptionPlaceholder)); 
 			}

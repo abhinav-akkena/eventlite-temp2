@@ -51,7 +51,7 @@
         <div class="card rounded-lg">
             <div class="card-body">
                 <!-- Direct property access assuming getDescription is not a method; adjust if it's a method -->
-                <p th:text="${event.description}">Event Description</p>
+                <p th:text="${event.getVenue.getLongitude}">Event Description</p>
             </div>
         </div>
     </div>
