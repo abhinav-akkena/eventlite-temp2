@@ -54,6 +54,37 @@
                 <p th:text="${event.description}">Event Description</p>
             </div>
         </div>
+        
+        <div class="card mt-3">
+		    <div class="card-body">
+		        <h5 class="card-title">Share Event</h5>
+		        <form id="statusUpdateForm" th:action="@{/events/share-on-mastodon}" method="post">
+		            <div class="form-group">
+		                <input type="text" class="form-control" id="statusContent" placeholder="Share your thoughts about the event">
+		            </div>
+		            <button type="submit" class="btn btn-primary">Post</button>
+		        </form>
+		        <div id="statusUpdateFeedback" class="mt-2"></div>
+		    </div>
+		</div>
+		
+		<script th:inline="javascript">
+		/*<![CDATA[*/
+		document.getElementById('statusUpdateForm').addEventListener('submit', function(event) {
+		    event.preventDefault();
+		    const content = document.getElementById('statusContent').value
+		    
+		    // Simulate posting (replace this with actual code to post the status)
+		    setTimeout(function() {
+		        const feedbackDiv = document.getElementById('statusUpdateFeedback');
+		        feedbackDiv.innerHTML = '<div class="alert alert-success" role="alert">Post published successfully: ' + content + '</div>';
+		        document.getElementById('statusContent').value = ''; // Clear the input field
+		    }, 1000); // Simulating a delay
+		});
+		/*]]>*/
+		</script>
+		
+		
     </div>
 </body>
 </html>
