@@ -18,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +37,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -261,6 +265,15 @@ public class VenuesControllerTest {
                 .andExpect(status().isForbidden());
         verify(venueService, never()).save(any(Venue.class));
     }
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAccessAdd() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/venues/add"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.view().name("venues/add_venue"));
+    }
+
 
    
 }

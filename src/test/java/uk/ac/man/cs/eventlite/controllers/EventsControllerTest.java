@@ -1,16 +1,26 @@
 package uk.ac.man.cs.eventlite.controllers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -21,8 +31,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
@@ -143,6 +156,127 @@ public class EventsControllerTest {
                 .andExpect(handler().methodName("showEventDetails"));
 
         verify(eventService).findById(invalidEventId);
+    }
+    
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAccessAdd() throws Exception {
+    	
+    	List<Venue> venues = new ArrayList<>();
+        Venue venue1 = new Venue();
+        venue1.setName("Venue 1");
+        Venue venue2 = new Venue();
+        venue2.setName("Venue 2");
+        venues.add(venue1);
+        venues.add(venue2);
+        when(venueService.findAll()).thenReturn(venues);
+        mvc.perform(MockMvcRequestBuilders.get("/events/add"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.view().name("events/add_event"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("venues"))
+                .andExpect(MockMvcResultMatchers.model().attribute("venues", venues));
+
+        
+        
+
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAddEventNoNameErrors() throws Exception {
+    	List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+
+	    mvc.perform(post("/events/added")
+	    		.param("venue.id", "1")
+                .param("date", "2024-11-07")
+                .with(csrf()))
+        		.andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/events/add"))
+	    		.andExpect(flash().attributeExists("errorMessage"));
+
+        verifyNoInteractions(eventService);
+    }
+    
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAddSuccess() throws Exception {
+    	List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+
+	    mvc.perform(post("/events/added")
+	    		.param("name", "Test Event")
+                .param("venue.id", "1")
+                .param("date", "2024-11-07")
+                .with(csrf()))
+        		.andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/events"));
+
+	    verify(eventService).save(any(Event.class));
+    }
+    
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAddErrorHandling() throws Exception {
+    	List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+
+	    mvc.perform(post("/events/added")
+	    		.param("name", "Test Event")
+                .param("venue", "1")
+                .param("date", "2024-11-07")
+                .with(csrf()))
+        		.andExpect(status().is3xxRedirection())
+        		.andExpect(redirectedUrl("/events/add"))
+	    		.andExpect(flash().attributeExists("errorMessage"));
+
+        verifyNoInteractions(eventService);
+    }
+
+	@Test
+    @WithMockUser()
+    public void testAddVenueNoAuth() throws Exception {
+    	
+		Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+        mvc.perform(post("/event/added")
+                .param("name", "Test Event")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(venue1))
+                .param("date", "2024-11-07")
+                .with(csrf()))
+                .andExpect(status().isForbidden());
+        verify(eventService, never()).save(any(Event.class));
     }
 	
 	
