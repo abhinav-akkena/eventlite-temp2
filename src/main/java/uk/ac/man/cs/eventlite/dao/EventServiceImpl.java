@@ -73,11 +73,6 @@ public class EventServiceImpl implements EventService {
 	public Event save(Event e) {
 		return eventRepository.save(e);
 	}
-
-	@Override
-	public Iterable<Event> search(String searchTerm) {
-		return eventRepository.findByNameLike("%" + searchTerm + "%");
-	}
 	
 	@Override
 	public void deleteById(long id) {
