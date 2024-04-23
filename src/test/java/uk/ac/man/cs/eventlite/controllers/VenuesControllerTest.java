@@ -1,13 +1,10 @@
 package uk.ac.man.cs.eventlite.controllers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.refEq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
@@ -17,6 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import java.util.Collections;
 import java.util.Arrays;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -55,6 +53,10 @@ import uk.ac.man.cs.eventlite.entities.Event;
 @Import(Security.class)
 @ActiveProfiles("test")
 public class VenuesControllerTest {
+	
+	public static final String ADMIN_USER = "Tom";
+	public static final String ADMIN_ROLE = "ADMIN";
+	public static final String USER_ROLE = "USER";
 
 	@Autowired
 	private MockMvc mvc;
@@ -159,6 +161,7 @@ public class VenuesControllerTest {
 	        .param("capacity", String.valueOf(updatedCapacity))
 	        .param("postcode", updatedPostcode))
 	        .andDo(print())
+	        
 	        ;
 	}
 
@@ -220,5 +223,44 @@ public class VenuesControllerTest {
 
         verify(venueService).findById(invalidVenueId);
     }
+    
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAddVenueSuccess() throws Exception {
+        mvc.perform(post("/venues/added?name=TestVenue&capacity=300&postcode=23&address=hi")
+        		.with(csrf()))
+                .andExpect(redirectedUrl("/venues"));
+
+        
+        verify(venueService).save(any(Venue.class));
+
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAddVenueNoNameErrors() throws Exception {
+
+	    mvc.perform(post("/venues/added?capacity=300")
+                .with(csrf()))
+        		.andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/venues/add"))
+	    		.andExpect(flash().attributeExists("errorMessage"));
+
+        verifyNoInteractions(venueService);
+    }
+
+	@Test
+    @WithMockUser(roles = USER_ROLE)
+    public void testAddVenueNoAuth() throws Exception {
+    	
+        // Perform the request
+        mvc.perform(post("/venues/added")
+                .param("name", "Test Venue")
+                .param("capacity", "300")
+                .with(csrf()))
+                .andExpect(status().isForbidden());
+        verify(venueService, never()).save(any(Venue.class));
+    }
+
    
 }
