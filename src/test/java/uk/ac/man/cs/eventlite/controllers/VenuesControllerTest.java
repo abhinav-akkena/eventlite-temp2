@@ -150,23 +150,21 @@ public class VenuesControllerTest {
 	    String updatedName = "Updated Venue Name";
 	    String updatedAddress = "Updated Address";
 	    String updatedPostcode = "Updated Postcode";
-	    int updatedCapacity = 200;
+	    String updatedCapacity = "200";
 
 	    when(venueService.findById(venueId)).thenReturn(testVenue);
-
-	    CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token-value");
 	    
 	    mvc.perform(post("/venues/update/{id}", venueId)
-	        .sessionAttr("_csrf", csrfToken)
-	        .param("_csrf", csrfToken.getToken())
-	        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
 	        .param("name", updatedName)
 	        .param("address", updatedAddress)
-	        .param("capacity", String.valueOf(updatedCapacity))
-	        .param("postcode", updatedPostcode))
-	        .andDo(print())
-	        
-	        ;
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues"));
+
+        
+	    verify(venueService).save(any(Venue.class));
 	}
 
 	
@@ -176,6 +174,7 @@ public class VenuesControllerTest {
 	    long venueId = 1L;
 	    when(venueService.findById(venueId)).thenReturn(testVenue); // Assuming testVenue is already set up
 
+	   
 	    mvc.perform(get("/venues/edit/{id}", venueId))
 	            .andExpect(status().isOk())
 	            .andExpect(view().name("venues/edit_venue"))
@@ -193,6 +192,56 @@ public class VenuesControllerTest {
 	            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
 	            .param("name", "Attempted Update Name"))
 	            .andExpect(status().isForbidden());
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void NoNameUpdateFailByAdmin() throws Exception {
+	    long venueId = 1L;
+	    String updatedName = "";
+	    String updatedAddress = "Updated Address";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "200";
+
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", updatedName)
+	        .param("address", updatedAddress)
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void ErrorInDataUpdateFailByAdmin() throws Exception {
+	    long venueId = 1L;
+	    String updatedName = "New Name";
+	    String updatedAddress = "Updated Address";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "twenty";
+
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", updatedName)
+	        .param("address", updatedAddress)
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
 	}
 	
     @Test
@@ -233,6 +282,7 @@ public class VenuesControllerTest {
     public void testAddVenueSuccess() throws Exception {
         mvc.perform(post("/venues/added?name=TestVenue&capacity=300&postcode=23&address=hi")
         		.with(csrf()))
+        		.andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/venues"));
 
         
