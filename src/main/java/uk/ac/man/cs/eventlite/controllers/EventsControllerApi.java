@@ -44,19 +44,6 @@ public class EventsControllerApi {
 	public EntityModel<Event> getEvent(@PathVariable("id") long id) {
 		throw new EventNotFoundException(id);
 	}
-	
-	@GetMapping("/{id}/venue")
-    public ResponseEntity<Venue> getVenue(@PathVariable("id") long id) {
-        Event event = eventService.findById(id)
-                .orElseThrow(() -> new EventNotFoundException(id));
-        
-        Venue venue = event.getVenue();
-        if (venue == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok().body(venue);
-    }
 
 	@GetMapping
 	public CollectionModel<EntityModel<Event>> getAllEvents() {
