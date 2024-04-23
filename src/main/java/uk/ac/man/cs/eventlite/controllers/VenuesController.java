@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.entities.Event;
@@ -154,22 +157,27 @@ public class VenuesController {
 	}
 	
 	@PostMapping("/added")
-	public String addVenue(HttpServletRequest request) {
-		Venue venue = new Venue();
-		Iterable<Venue> events = venueServices.findAll();
-		long max = 0;
-        for (Venue ev : events) {
-            if (ev.getId() > max) {
-                max = ev.getId()+1;
-            }
+	public String addVenue(@Valid Venue venue, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
+		System.out.println("Helloooooooo");
+		try {
+			if(error.hasErrors()) {
+				String ErrorMessage= "Error: Please fix these problems : ";
+				List<ObjectError> errors = error.getAllErrors();
+				for (ObjectError e: errors) {
+					ErrorMessage += e.getDefaultMessage() + " & ";
+				}
+				ErrorMessage = ErrorMessage.substring(0, ErrorMessage.length()-2);
+				redirectAttributes.addFlashAttribute("errorMessage", ErrorMessage);
+				return "redirect:/venues/add";
+			}
+			else {
+				venueServices.save(venue);
+		       
+			}
+        }catch(Exception e) {
+        	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        	return "redirect:/venues/add_venue";
         }
-        venue.setId(max);
-		venue.setName(request.getParameter("name"));
-		venue.setCapacity(Integer.parseInt(request.getParameter("capacity")));
-		venue.setAddress(request.getParameter("address"));
-		venue.setPostcode(request.getParameter("post_code"));
-		venueServices.save(venue);
-		
 		return "redirect:/venues";
 		
 	}

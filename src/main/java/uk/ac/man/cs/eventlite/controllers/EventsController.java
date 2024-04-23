@@ -103,7 +103,6 @@ public class EventsController {
 		       
 			}
         }catch(Exception e) {
-        	System.out.println("Hemlo");
         	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         	return "redirect:/events/add_event";
         }
