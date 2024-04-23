@@ -11,7 +11,13 @@
   
   <h1>Create New Venue</h1>
    <div sec:authorize="hasRole('ADMINISTRATOR')" class="w-100 d-flex justify-content-center">
-  <form id="eventForm" th:action="@{/venues/added}" style="max-width:600px;" class="w-100" method="post">
+  <form id="venueForm" th:action="@{/venues/added}" style="max-width:600px;" class="w-100" method="post">
+  <div th:if="${errorMessage}" class="alert alert-danger alert-dismissable" role="alert">
+	   <span th:text="${errorMessage}"></span>
+	   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+	   <span aria-hidden="true">&times;</span>
+	   </button>
+   </div>
   <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
       <div class="form-group">
       <label for="name">Venue Name:</label>
