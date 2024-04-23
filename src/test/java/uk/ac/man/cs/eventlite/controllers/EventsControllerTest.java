@@ -92,7 +92,8 @@ public class EventsControllerTest {
 		when(venue.getName()).thenReturn("Kilburn Building");
 
 		when(event.getVenue()).thenReturn(venue);
-		when(eventService.search("bean")).thenReturn(Collections.<Event>singletonList(event));
+		when(eventService.searchFuture("bean")).thenReturn(Collections.<Event>singletonList(event));
+		when(eventService.searchPast("bean")).thenReturn(Collections.emptyList());
 		
 		mvc.perform(get("/events/search").accept(MediaType.TEXT_HTML).param("inputSearch", "bean")).andExpect(status().isOk())
 			.andExpect(view().name("events/index")).andExpect(handler().methodName("searchEvent"));
@@ -103,7 +104,8 @@ public class EventsControllerTest {
 		when(venue.getName()).thenReturn("Kilburn Building");
 
 		when(event.getVenue()).thenReturn(venue);
-		when(eventService.search("beanSequel")).thenReturn(Collections.<Event>emptyList());
+		when(eventService.searchFuture("bean")).thenReturn(Collections.emptyList());
+		when(eventService.searchPast("bean")).thenReturn(Collections.emptyList());
 		
 		mvc.perform(get("/events/search").accept(MediaType.TEXT_HTML).param("inputSearch", "beanSequel")).andExpect(status().isOk())
 			.andExpect(view().name("events/index")).andExpect(handler().methodName("searchEvent"));
