@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -175,10 +176,6 @@ public class EventsControllerTest {
                 .andExpect(MockMvcResultMatchers.view().name("events/add_event"))
                 .andExpect(MockMvcResultMatchers.model().attributeExists("venues"))
                 .andExpect(MockMvcResultMatchers.model().attribute("venues", venues));
-
-        
-        
-
     }
 
     @Test
@@ -277,6 +274,142 @@ public class EventsControllerTest {
                 .with(csrf()))
                 .andExpect(status().isForbidden());
         verify(eventService, never()).save(any(Event.class));
+    }
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAccessUpdate() throws Exception {
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
+		Event mockEvent = new Event(1, "Test Event", LocalDate.of(2024, 07, 7), LocalTime.of(9, 0),venue1,"Best event");
+		when(eventService.findById(1L)).thenReturn(Optional.of(mockEvent));
+
+		mvc.perform(MockMvcRequestBuilders.get("/events/edit/1"))
+	    .andExpect(MockMvcResultMatchers.status().isOk())
+	    .andExpect(MockMvcResultMatchers.view().name("events/edit_event"))
+	    .andExpect(MockMvcResultMatchers.model().attributeExists("venues"))
+	    .andExpect(MockMvcResultMatchers.model().attribute("venues", venues))
+	    .andExpect(MockMvcResultMatchers.model().attributeExists("event"))
+	    .andExpect(MockMvcResultMatchers.model().attribute("event", mockEvent));
+    }
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testUpdateSuccess() throws Exception {
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		Venue venue2 = new Venue();
+    	venue2.setId(1);
+		venue2.setCapacity(220);
+		venue2.setName("Engineering Building");
+		venue2.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue2.setPostcode("M13 9QL");
+		venues.add(venue2);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
+		Event mockEvent = new Event(1, "Test Event", LocalDate.of(2024, 07, 7), LocalTime.of(9, 0),venue1,"Best event");
+		when(eventService.findById(1L)).thenReturn(Optional.of(mockEvent));
+
+		mvc.perform(post("/events/update/1")
+	    		.param("name", "New Test Event")
+                .param("venue.id", "2")
+                .param("date", "2024-12-07")
+                .with(csrf()))
+        		.andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/events"));
+
+	    verify(eventService).save(any(Event.class));
+    }
+	
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testUpdateNoNameFailure() throws Exception {
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		Venue venue2 = new Venue();
+    	venue2.setId(1);
+		venue2.setCapacity(220);
+		venue2.setName("Engineering Building");
+		venue2.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue2.setPostcode("M13 9QL");
+		venues.add(venue2);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
+		Event mockEvent = new Event(1, "Test Event", LocalDate.of(2024, 07, 7), LocalTime.of(9, 0),venue1,"Best event");
+		when(eventService.findById(1L)).thenReturn(Optional.of(mockEvent));
+
+		mvc.perform(post("/events/update/1")
+	    		.param("name", "")
+                .param("venue.id", "2")
+                .param("date", "2024-12-07")
+                .with(csrf()))
+		.andExpect(status().is3xxRedirection())
+		.andExpect(redirectedUrl("/events/edit/1"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+verifyNoInteractions(eventService);
+
+	    
+    }
+	
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testUpdateErrorHandling() throws Exception {
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		Venue venue2 = new Venue();
+    	venue2.setId(1);
+		venue2.setCapacity(220);
+		venue2.setName("Engineering Building");
+		venue2.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue2.setPostcode("M13 9QL");
+		venues.add(venue2);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
+		Event mockEvent = new Event(1, "Test Event", LocalDate.of(2024, 07, 7), LocalTime.of(9, 0),venue1,"Best event");
+		when(eventService.findById(1L)).thenReturn(Optional.of(mockEvent));
+
+		mvc.perform(post("/events/update/1")
+	    		.param("name", "New test")
+                .param("venue", "2")
+                .param("date", "2024-12-07")
+                .with(csrf()))
+		.andExpect(status().is3xxRedirection())
+		.andExpect(redirectedUrl("/events/edit/1"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+			verifyNoInteractions(eventService);
+
+	    
     }
 	
 	

@@ -125,32 +125,31 @@ public class EventsController {
 
 	@PostMapping("/update/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public String updateEvent(@PathVariable("id") long id, BindingResult error, HttpServletRequest request, RedirectAttributes redirectAttributes) {	
-			
-		    Event event = eventService.findById(id).orElseThrow(() -> new EventNotFoundException(id));
-		    
-		    // Update event properties from request parameters
-		    event.setName(request.getParameter("name"));
-		    event.setDate(LocalDate.parse(request.getParameter("date")));
-		    String timeParameter = request.getParameter("time");
-			LocalTime t = null;
-			if (timeParameter != null && !timeParameter.isEmpty()) {
-			    t = LocalTime.parse(timeParameter);
+	public String updateEvent(@PathVariable("id") long id,@Valid Event event, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
+		try {
+			if(error.hasErrors()) {
+				String ErrorMessage= "Error: Please fix these problems : ";
+				List<ObjectError> errors = error.getAllErrors();
+				for (ObjectError e: errors) {
+					ErrorMessage += e.getDefaultMessage() + " & ";
+				}
+				
+				ErrorMessage = ErrorMessage.substring(0, ErrorMessage.length()-2);
+				redirectAttributes.addFlashAttribute("errorMessage", ErrorMessage);
+				Iterable<Venue> venues = venueServices.findAll();
+				redirectAttributes.addFlashAttribute("venues", venues);
+				return "redirect:/events/edit/"+id;
 			}
-			event.setTime(t);
-			event.setVenue(venueServices.findById(Long.parseLong(request.getParameter("venue"))));
-			String desc = request.getParameter("description");
-			if (desc == null || desc.isEmpty()) {
-			    desc = null; // or set a default value
+			else {
+				eventService.save(event);
+		       
 			}
-			event.setDescription(desc);
-	
-		    eventService.save(event);
-		    redirectAttributes.addFlashAttribute("success", "Event updated successfully!");
-			
-
-	    
-	    return "redirect:/events";
+        }catch(Exception e) {
+        	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        	return "redirect:/events/edit/"+id;
+        }
+		return "redirect:/events";
+		
 	}
 	
 	@GetMapping("/delete")
