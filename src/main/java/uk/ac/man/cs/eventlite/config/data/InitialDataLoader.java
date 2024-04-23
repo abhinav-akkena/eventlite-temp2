@@ -53,6 +53,8 @@ public class InitialDataLoader {
 				venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
 				venue1.setPostcode("M13 9PL");
 				venue1.setId(1);
+				venue1.setLatitude(53.468288);
+				venue1.setLongitude(-2.235450);
 				venueService.save(venue1);
 				venue2 = new Venue();
 				venue2.setCapacity(100000);
@@ -66,6 +68,8 @@ public class InitialDataLoader {
 				venue3.setName("AMBS Building");
 				venue3.setAddress("674 Manchester Road");
 				venue3.setPostcode("M14 5DS");
+				venue3.setLatitude(53.467659);
+				venue3.setLongitude(-2.238140);
 				venue3.setId(3);
 				venueService.save(venue3);;
 				
@@ -76,7 +80,7 @@ public class InitialDataLoader {
 			} else {
 				// Build and save initial events here.
 				eventService.save(new Event(1, "COMP23412 Showcase 01", LocalDate.of(2024, 05, 7), LocalTime.of(9, 0),venue1,descriptionPlaceholder)); 
-				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 7), LocalTime.of(12, 0),venue1,descriptionPlaceholder)); 
+				eventService.save(new Event(2, "COMP23412 Showcase 02", LocalDate.of(2024, 05, 7), LocalTime.of(12, 0),venue3,descriptionPlaceholder)); 
 				eventService.save(new Event(3, "COMP23412 Showcase 03", LocalDate.of(2024, 05, 9), LocalTime.of(15, 0),venue1,descriptionPlaceholder)); 
 				eventService.save(new Event(4, "COMP23412 Showcase 04", LocalDate.of(2024, 03, 5), LocalTime.of(15, 0),venue1,descriptionPlaceholder)); 
 			}
