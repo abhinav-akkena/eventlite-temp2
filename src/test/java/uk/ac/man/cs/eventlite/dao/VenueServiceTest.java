@@ -41,6 +41,7 @@ public class VenueServiceTest extends AbstractTransactionalJUnit4SpringContextTe
 		assertEquals(venueService.count(), initialCount+1);
 	}
 	
+	
 	@Test
 	public void testVenueLongLatSet1() {
 		Venue venue = new Venue();
