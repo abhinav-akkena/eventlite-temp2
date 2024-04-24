@@ -29,9 +29,11 @@ import aj.org.objectweb.asm.Attribute;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import uk.ac.man.cs.eventlite.dao.EventService;
+import uk.ac.man.cs.eventlite.dao.MastodonService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.dao.VenueServiceImpl;
 import uk.ac.man.cs.eventlite.entities.Event;
+import uk.ac.man.cs.eventlite.entities.MastodonPost;
 import uk.ac.man.cs.eventlite.exceptions.EventNotFoundException;
 import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
@@ -46,6 +48,9 @@ public class EventsController {
 
 	@Autowired
 	private VenueService venueServices;
+	
+	@Autowired
+    private MastodonService mastodonService;
 
 
 	@ExceptionHandler(EventNotFoundException.class)
@@ -65,11 +70,19 @@ public class EventsController {
 	
 	@GetMapping
 	public String getAllEvents(Model model) {
-
+	    List<MastodonPost> posts = mastodonService.fetchLastThreePosts();
+	    
+	    // Print out the result for debugging
+	    System.out.println("Fetched Mastodon Posts:");
+	    for (MastodonPost post : posts) {
+	        System.out.println(post.toString()); // Ensure MastodonPost has a proper toString() method
+	    }
+		
+		
 		model.addAttribute("events", eventService.findAll());
 		model.addAttribute("pastEvents", eventService.findPast());
 		model.addAttribute("futureEvents", eventService.findFuture());
-		model.addAttribute("mastodonPosts", Collections.emptyList());
+		model.addAttribute("mastodonPosts", mastodonService.fetchLastThreePosts());
 
 		return "events/index";
 	}
@@ -187,7 +200,7 @@ public class EventsController {
 //		model.addAttribute("events", eventService.search(searchTerm));
 		model.addAttribute("pastEvents", eventService.searchPast(searchTerm));
 		model.addAttribute("futureEvents", eventService.searchFuture(searchTerm));
-		model.addAttribute("mastodonPosts", Collections.emptyList());
+		model.addAttribute("mastodonPosts", mastodonService.fetchLastThreePosts());
 		
 		return "events/index";
 	}
