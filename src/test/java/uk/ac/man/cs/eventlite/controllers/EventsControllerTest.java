@@ -230,7 +230,7 @@ public class EventsControllerTest {
     
     @Test
     @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
-    public void testAddErrorHandling() throws Exception {
+    public void testAddNoVenueError() throws Exception {
     	List<Venue> venues = new ArrayList<>();
     	Venue venue1 = new Venue();
     	venue1.setId(1);
@@ -253,23 +253,139 @@ public class EventsControllerTest {
 
         verifyNoInteractions(eventService);
     }
-
-	@Test
-    @WithMockUser()
-    public void testAddVenueNoAuth() throws Exception {
-    	
-		Venue venue1 = new Venue();
+    
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAddNoDateError() throws Exception {
+    	List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
 		venue1.setCapacity(120);
 		venue1.setName("Kilburn Building");
 		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
 		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
 		
+		when(venueService.findAll()).thenReturn(venues);
+
+	    mvc.perform(post("/events/added")
+	    		.param("name", "Test Event")
+                .param("venue.id", "1")
+                .with(csrf()))
+        		.andExpect(status().is3xxRedirection())
+        		.andExpect(redirectedUrl("/events/add"))
+	    		.andExpect(flash().attributeExists("errorMessage"));
+
+        verifyNoInteractions(eventService);
+    }
+    
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAddNameLongError() throws Exception {
+    	List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
 		
-		ObjectMapper objectMapper = new ObjectMapper();
+		String newName = "";
+		for(int i = 0; i<=255; i++) {
+			newName += 'c';//Making a name longer than 255 characters
+		}
+		
+		when(venueService.findAll()).thenReturn(venues);
+
+	    mvc.perform(post("/events/added")
+	    		.param("name", newName)
+                .param("venue.id", "1")
+                .param("date", "2024-11-07")
+                .with(csrf()))
+        		.andExpect(status().is3xxRedirection())
+        		.andExpect(redirectedUrl("/events/add"))
+	    		.andExpect(flash().attributeExists("errorMessage"));
+
+        verifyNoInteractions(eventService);
+    }
+    
+    @Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAddDescriptionLongError() throws Exception {
+    	List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
+		
+		String newDescription = "";
+		for(int i = 0; i<=500; i++) {
+			newDescription += 'c';//Making a description longer than 500 characters
+		}
+		
+		when(venueService.findAll()).thenReturn(venues);
+
+	    mvc.perform(post("/events/added")
+	    		.param("name", "Test Event")
+                .param("venue.id", "1")
+                .param("date", "2024-11-07")
+                .param("description", newDescription)
+                .with(csrf()))
+        		.andExpect(status().is3xxRedirection())
+        		.andExpect(redirectedUrl("/events/add"))
+	    		.andExpect(flash().attributeExists("errorMessage"));
+
+        verifyNoInteractions(eventService);
+    }
+
+
+
+	@Test
+    @WithMockUser()
+    public void testAddEventNoAuth() throws Exception {
+    	
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
         mvc.perform(post("/event/added")
                 .param("name", "Test Event")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(venue1))
+                .param("venue.id", "1")
+                .param("date", "2024-11-07")
+                .with(csrf()))
+                .andExpect(status().isForbidden());
+        verify(eventService, never()).save(any(Event.class));
+    }
+	
+	@Test
+    @WithMockUser()
+    public void testUpdateEventNoAuth() throws Exception {
+    	
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venues.add(venue1);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
+        mvc.perform(post("/event/edit/1")
+                .param("name", "Test Event")
+                .param("venue.id", "1")
                 .param("date", "2024-11-07")
                 .with(csrf()))
                 .andExpect(status().isForbidden());
@@ -377,7 +493,7 @@ verifyNoInteractions(eventService);
 	
 	@Test
     @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
-    public void testUpdateErrorHandling() throws Exception {
+    public void testUpdateNoVenue() throws Exception {
 		List<Venue> venues = new ArrayList<>();
     	Venue venue1 = new Venue();
     	venue1.setId(1);
@@ -402,6 +518,126 @@ verifyNoInteractions(eventService);
 	    		.param("name", "New test")
                 .param("venue", "2")
                 .param("date", "2024-12-07")
+                .with(csrf()))
+		.andExpect(status().is3xxRedirection())
+		.andExpect(redirectedUrl("/events/edit/1"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+			verifyNoInteractions(eventService);
+
+	    
+    }
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testUpdateNoDate() throws Exception {
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		Venue venue2 = new Venue();
+    	venue2.setId(1);
+		venue2.setCapacity(220);
+		venue2.setName("Engineering Building");
+		venue2.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue2.setPostcode("M13 9QL");
+		venues.add(venue2);		
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
+		Event mockEvent = new Event(1, "Test Event", LocalDate.of(2024, 07, 7), LocalTime.of(9, 0),venue1,"Best event");
+		when(eventService.findById(1L)).thenReturn(Optional.of(mockEvent));
+
+		mvc.perform(post("/events/update/1")
+	    		.param("name", "New test")
+                .param("venue.id", "2")
+                .param("date", "")
+                .with(csrf()))
+		.andExpect(status().is3xxRedirection())
+		.andExpect(redirectedUrl("/events/edit/1"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+			verifyNoInteractions(eventService);
+
+	    
+    }
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testUpdateNameLongError() throws Exception {
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		Venue venue2 = new Venue();
+    	venue2.setId(1);
+		venue2.setCapacity(220);
+		venue2.setName("Engineering Building");
+		venue2.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue2.setPostcode("M13 9QL");
+		venues.add(venue2);		
+		String newName = "";
+		for(int i = 0; i<=255; i++) {
+			newName += 'c';//Making a name longer than 255 characters
+		}
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
+		Event mockEvent = new Event(1, "Test Event", LocalDate.of(2024, 07, 7), LocalTime.of(9, 0),venue1,"Best event");
+		when(eventService.findById(1L)).thenReturn(Optional.of(mockEvent));
+
+		mvc.perform(post("/events/update/1")
+	    		.param("name", newName)
+                .param("venue.id", "2")
+                .param("date", "2024-12-07")
+                .with(csrf()))
+		.andExpect(status().is3xxRedirection())
+		.andExpect(redirectedUrl("/events/edit/1"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+			verifyNoInteractions(eventService);
+
+	    
+    }
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testUpdateDescriptionLongError() throws Exception {
+		List<Venue> venues = new ArrayList<>();
+    	Venue venue1 = new Venue();
+    	venue1.setId(1);
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		Venue venue2 = new Venue();
+    	venue2.setId(1);
+		venue2.setCapacity(220);
+		venue2.setName("Engineering Building");
+		venue2.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue2.setPostcode("M13 9QL");
+		venues.add(venue2);		
+		String newDescription = "";
+		for(int i = 0; i<=500; i++) {
+			newDescription += 'c';//Making a description longer than 500 characters
+		}
+		
+		when(venueService.findAll()).thenReturn(venues);
+		
+		Event mockEvent = new Event(1, "Test Event", LocalDate.of(2024, 07, 7), LocalTime.of(9, 0),venue1,"Best event");
+		when(eventService.findById(1L)).thenReturn(Optional.of(mockEvent));
+
+		mvc.perform(post("/events/update/1")
+	    		.param("name", "Test Name")
+                .param("venue.id", "2")
+                .param("date", "2024-12-07")
+                .param("description", newDescription)
                 .with(csrf()))
 		.andExpect(status().is3xxRedirection())
 		.andExpect(redirectedUrl("/events/edit/1"))
