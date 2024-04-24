@@ -5,6 +5,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <title th:text="${event != null} ? ${event.name} : 'Event name'">Event name</title> 
+    <meta name="csrf-token" th:content="${_csrf.token}"/>
 </head>
 <body>
     <div th:if="${event != null}" layout:fragment="content" class="container mt-4">
@@ -55,36 +56,15 @@
             </div>
         </div>
         
-        <div class="card mt-3">
-		    <div class="card-body">
-		        <h5 class="card-title">Share Event</h5>
-		        <form id="statusUpdateForm" th:action="@{/events/share-on-mastodon}" method="post">
-		            <div class="form-group">
-		                <input type="text" class="form-control" id="statusContent" placeholder="Share your thoughts about the event">
-		            </div>
-		            <button type="submit" class="btn btn-primary">Post</button>
-		        </form>
-		        <div id="statusUpdateFeedback" class="mt-2"></div>
-		    </div>
-		</div>
-		
-		<script th:inline="javascript">
-		/*<![CDATA[*/
-		document.getElementById('statusUpdateForm').addEventListener('submit', function(event) {
-		    event.preventDefault();
-		    const content = document.getElementById('statusContent').value
-		    
-		    // Simulate posting (replace this with actual code to post the status)
-		    setTimeout(function() {
-		        const feedbackDiv = document.getElementById('statusUpdateFeedback');
-		        feedbackDiv.innerHTML = '<div class="alert alert-success" role="alert">Post published successfully: ' + content + '</div>';
-		        document.getElementById('statusContent').value = ''; // Clear the input field
-		    }, 1000); // Simulating a delay
-		});
-		/*]]>*/
-		</script>
-		
-		
+        <!-- Share on Mastodon form -->
+        <form th:action="@{/events/share-on-mastodon}" method="post">
+            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+			<input type="hidden" name="eventId" th:value="${event.id}" />
+
+            <input type="hidden" name="status" th:value="${event.name + ' is happening on ' + event.date}"/>
+            <button type="submit" class="btn btn-info"><i class="fa-solid fa-feather"></i> Share on Mastodon</button>
+        </form>
+        
     </div>
 </body>
 </html>
