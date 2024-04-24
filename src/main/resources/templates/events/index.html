@@ -75,8 +75,8 @@
 	        </thead>
 	        <tbody>
 	            <tr th:each="p : ${mastodonPosts}">
-	                <td th:text="${p.time}">Post time</td>
-	                <td th:text="${p.date}">Post date</td>
+	                <td th:text="${p.formattedTime}">Post time</td>
+	                <td th:text="${p.formattedDate}">Post date</td>
 	                <td>
 	                    <a th:href="${p.url}" th:text="${p.content}">Post Link</a>
 	                </td>

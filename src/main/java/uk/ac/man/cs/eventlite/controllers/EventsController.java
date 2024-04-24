@@ -70,15 +70,6 @@ public class EventsController {
 	
 	@GetMapping
 	public String getAllEvents(Model model) {
-	    List<MastodonPost> posts = mastodonService.fetchLastThreePosts();
-	    
-	    // Print out the result for debugging
-	    System.out.println("Fetched Mastodon Posts:");
-	    for (MastodonPost post : posts) {
-	        System.out.println(post.toString()); // Ensure MastodonPost has a proper toString() method
-	    }
-		
-		
 		model.addAttribute("events", eventService.findAll());
 		model.addAttribute("pastEvents", eventService.findPast());
 		model.addAttribute("futureEvents", eventService.findFuture());

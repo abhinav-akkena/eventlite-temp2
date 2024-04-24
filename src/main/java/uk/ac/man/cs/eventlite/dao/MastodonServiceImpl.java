@@ -1,5 +1,6 @@
 package uk.ac.man.cs.eventlite.dao;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,7 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.ac.man.cs.eventlite.entities.MastodonPost;
 
@@ -30,28 +34,39 @@ public class MastodonServiceImpl implements MastodonService {
     @Value("${mastodon.instance.url}")
     private String mastodonInstanceUrl;
 
+    @Value("${mastodon.user-id}")
+    private String mastodonUserId;
+    
     public MastodonServiceImpl() {
         this.restTemplate = new RestTemplate();
     }
 
     @Override
     public List<MastodonPost> fetchLastThreePosts() {
-        String url = mastodonInstanceUrl + "/api/v1/timelines/public"; // Modify according to the actual API endpoint
-        ResponseEntity<MastodonPost[]> response = restTemplate.getForEntity(url, MastodonPost[].class);
-        
-        System.out.println(response.toString());
-        
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return Arrays.stream(response.getBody())
-                         .filter(post -> post.getCreatedAt() != null) // Filter out posts with null createdAt
-                         .sorted(Comparator.comparing(MastodonPost::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
-                         .limit(3)
-                         .collect(Collectors.toList());
-        } else {
+        String url = mastodonInstanceUrl + "/api/v1/accounts/" + mastodonUserId + "/statuses";
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            MastodonPost[] posts = mapper.readValue(response.getBody(), MastodonPost[].class);
+            
+            //Sorts by date
+            Arrays.sort(posts, new Comparator<MastodonPost>() {
+                @Override
+                public int compare(MastodonPost p1, MastodonPost p2) {
+                    return p2.getCreatedAt().compareTo(p1.getCreatedAt());
+                }
+            });
+            
+            return Arrays.asList(Arrays.copyOfRange(posts, 0, 3));
+        } 
+        catch (Exception e) {
+            e.printStackTrace();
             return Collections.emptyList();
         }
     }
-
 
     @Override
     public void shareStatus(String status) throws Exception {
