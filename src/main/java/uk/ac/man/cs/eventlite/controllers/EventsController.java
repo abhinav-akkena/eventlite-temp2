@@ -84,7 +84,6 @@ public class EventsController {
 	
 	@PostMapping("/added")
 	public String addEvent(@Valid Event event, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
-		try {
 			if(error.hasErrors()) {
 				String ErrorMessage= "Error: Please fix these problems : ";
 				List<ObjectError> errors = error.getAllErrors();
@@ -100,12 +99,7 @@ public class EventsController {
 			}
 			else {
 				eventService.save(event);
-		       
 			}
-        }catch(Exception e) {
-        	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        	return "redirect:/events/add_event";
-        }
 		return "redirect:/events";
 		
 	}
@@ -126,7 +120,6 @@ public class EventsController {
 	@PostMapping("/update/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String updateEvent(@PathVariable("id") long id,@Valid Event event, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
-		try {
 			if(error.hasErrors()) {
 				String ErrorMessage= "Error: Please fix these problems : ";
 				List<ObjectError> errors = error.getAllErrors();
@@ -144,10 +137,6 @@ public class EventsController {
 				eventService.save(event);
 		       
 			}
-        }catch(Exception e) {
-        	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        	return "redirect:/events/edit/"+id;
-        }
 		return "redirect:/events";
 		
 	}

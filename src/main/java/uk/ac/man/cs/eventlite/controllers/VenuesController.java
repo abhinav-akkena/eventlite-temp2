@@ -109,25 +109,20 @@ public class VenuesController {
 	@PostMapping("/update/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public String updateVenue(@PathVariable("id") long id, @Valid Venue venue, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
-		try {
-			if(error.hasErrors()) {
-				String ErrorMessage= "Error: Please fix these problems : ";
-				List<ObjectError> errors = error.getAllErrors();
-				for (ObjectError e: errors) {
-					ErrorMessage += e.getDefaultMessage() + " & ";
-				}
-				ErrorMessage = ErrorMessage.substring(0, ErrorMessage.length()-2);
-				redirectAttributes.addFlashAttribute("errorMessage", ErrorMessage);
-				return "redirect:/venues/edit/"+id;
+		if(error.hasErrors()) {
+			String ErrorMessage= "Error: Please fix these problems : ";
+			List<ObjectError> errors = error.getAllErrors();
+			for (ObjectError e: errors) {
+				ErrorMessage += e.getDefaultMessage() + " & ";
 			}
-			else {
-				venueServices.save(venue);
-		       
-			}
-        }catch(Exception e) {
-        	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        	return "redirect:/venues/edit/"+id;
-        }
+			ErrorMessage = ErrorMessage.substring(0, ErrorMessage.length()-2);
+			redirectAttributes.addFlashAttribute("errorMessage", ErrorMessage);
+			return "redirect:/venues/edit/"+id;
+		}
+		else {
+			venueServices.save(venue);
+	       
+		}
 		return "redirect:/venues";
 	}
 	
@@ -164,7 +159,6 @@ public class VenuesController {
 	
 	@PostMapping("/added")
 	public String addVenue(@Valid Venue venue, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
-		try {
 			if(error.hasErrors()) {
 				String ErrorMessage= "Error: Please fix these problems : ";
 				List<ObjectError> errors = error.getAllErrors();
@@ -179,10 +173,6 @@ public class VenuesController {
 				venueServices.save(venue);
 		       
 			}
-        }catch(Exception e) {
-        	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        	return "redirect:/venues/add_venue";
-        }
 		return "redirect:/venues";
 		
 	}
