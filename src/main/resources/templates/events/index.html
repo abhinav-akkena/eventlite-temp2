@@ -8,13 +8,7 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
 
 </head>
-  <style>
-  	#map{
-  		position: absolute;
-  		width: 70%;
-  		height: 40%;
-  	}
-  </style>
+
 
 <body>
   <div th:insert="navbar :: navbar">  </div>
@@ -90,7 +84,14 @@
 			  	<a th:href="@{/events/{eventId}(eventId=${e.id})}" th:text="${e.name}">Event Name</a>
 			  </td>
 	          
-	          <td th:text="${e.venue.name}">Event venue</td>
+	          
+	         
+			  <td>
+			  	<a th:href="@{/venues/{venueId}(venueId=${e.getVenue.getId})}" th:text="${e.venue.name}">Event venue</a>
+			  </td>
+	          
+	          
+	          
 	          <td th:text="${{e.date}}">Event date</td>
 	          <td th:text="${{e.time}}">Event time</td>
 	          
