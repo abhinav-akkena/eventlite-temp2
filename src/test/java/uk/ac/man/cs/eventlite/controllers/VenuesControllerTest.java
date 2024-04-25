@@ -14,11 +14,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.util.Collections;
+import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +45,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import uk.ac.man.cs.eventlite.config.Security;
@@ -220,5 +226,54 @@ public class VenuesControllerTest {
 
         verify(venueService).findById(invalidVenueId);
     }
+    
+    @Test	
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void deleteVenueAsAdmin() throws Exception {
+	    long eventId = 1L;
+	    Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venue1.setId(1);
+		venueService.save(venue1);
+        Event mockEvent =(new Event(1, "Test Event", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0),venue1,"Test description")); 
+        
+        eventService.save(mockEvent);
+
+        when(venueService.findById(eventId)).thenReturn(venue1);
+	    
+	    mvc.perform(post("/venues/deleted")
+	    		.param("venueID", "1")
+	            .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues"));   
+    }
+    
+    @Test
+	@WithMockUser(roles = "ADMIN")
+	public void getDeleteFormAsAdminShowsForm() throws Exception {
+	    long venueId = 1L;	
+	    long eventId = 1L;
+	    Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venue1.setId(1);
+		venueService.save(venue1);
+        Event mockEvent =(new Event(1, "Test Event", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0),venue1,"Test description")); 
+        
+        eventService.save(mockEvent);
+
+        when(venueService.findById(eventId)).thenReturn(venue1);
+	    mvc.perform(get("/venues/delete")
+	    		.param("id", "1")
+	            .with(csrf()))
+	            .andExpect(status().isOk())
+	                    .andExpect(view().name("venues/delete_venue"))
+	                    .andExpect(model().attribute("id", "1"));
+	}
    
 }
