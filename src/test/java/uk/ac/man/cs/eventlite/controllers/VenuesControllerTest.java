@@ -351,6 +351,39 @@ public class VenuesControllerTest {
 	    verifyNoInteractions(venueService);
 	}
 	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void LongAddressUpdateVenueFailAsAdmin() throws Exception {
+	    
+	    String newAddress = "";
+		for(int i = 0; i<=300; i++) {
+			newAddress += 'c';//Making a address longer than 500 characters
+		}
+		long venueId = 1L;
+	    String updatedName = "Updated Venue Name";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "200";
+	    
+	    updatedPostcode = "";
+		for(int i = 0; i<=500; i++) {
+			updatedPostcode += 'c';//Making a postcode longer than 500 characters
+		}
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", "Test Venue")
+	        .param("capacity", "340")
+	        .param("postcode", "3456789098765")
+	        .param("address", newAddress)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
     @Test
     public void showExistingVenue() throws Exception {
         Long venueId = 1L;
@@ -509,6 +542,29 @@ public class VenuesControllerTest {
 	        .param("name", "Test Venue")
 	        .param("capacity", "")
 	        .param("postcode", newPost)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/add"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void LongAddressAddVenueFailAsAdmin() throws Exception {
+	    
+	    String newAddress = "";
+		for(int i = 0; i<=300; i++) {
+			newAddress += 'c';//Making a address longer than 500 characters
+		}
+	    
+	    mvc.perform(post("/venues/added")
+	        .param("name", "Test Venue")
+	        .param("capacity", "340")
+	        .param("postcode", "3456789098765")
+	        .param("address", newAddress)
 	        .with(csrf()))
 	    .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl("/venues/add"))
