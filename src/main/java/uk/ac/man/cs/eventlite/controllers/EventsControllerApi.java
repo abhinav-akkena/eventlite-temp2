@@ -3,6 +3,8 @@ package uk.ac.man.cs.eventlite.controllers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -42,7 +44,12 @@ public class EventsControllerApi {
 
 	@GetMapping("/{id}")
 	public EntityModel<Event> getEvent(@PathVariable("id") long id) {
-		throw new EventNotFoundException(id);
+		Optional<Event> eventOptional = eventService.findById(id);
+		if (eventOptional.isPresent()) {
+		    return eventAssembler.toModel(eventOptional.get());
+		} else {
+		    throw new EventNotFoundException(id);
+		}
 	}
 
 	@GetMapping
