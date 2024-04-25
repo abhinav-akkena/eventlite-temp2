@@ -57,13 +57,21 @@
         </div>
         
         <!-- Share on Mastodon form -->
-        <form th:action="@{/events/share-on-mastodon}" method="post">
-            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-			<input type="hidden" name="eventId" th:value="${event.id}" />
-
-            <input type="hidden" name="status" th:value="${event.name + ' is happening on ' + event.date}"/>
-            <button type="submit" class="btn btn-info"><i class="fa-solid fa-feather"></i> Share on Mastodon</button>
-        </form>
+        <div class="card mt-3">
+		    <div class="card-body">
+		        <h5 class="card-title">Share Event</h5>
+		        <form id="statusUpdateForm" th:action="@{/events/share-on-mastodon}" method="post">
+		            <div class="form-group">
+		                <input type="text" name="status" class="form-control" id="statusContent" placeholder="Share your thoughts about the event">
+		            </div>
+		            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+		            <input type="hidden" name="eventId" th:value="${event.id}" />
+		            <button type="submit" class="btn btn-info"><i class="fa-solid fa-feather"></i> Share on Mastodon</button>
+		        </form>
+		        <div id="statusUpdateFeedback" class="mt-2"></div>
+		    </div>
+		</div>
+        
         
     </div>
 </body>
