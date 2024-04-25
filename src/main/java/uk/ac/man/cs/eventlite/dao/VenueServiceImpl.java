@@ -44,7 +44,9 @@ public class VenueServiceImpl implements VenueService {
 //
 //		for (; i.hasNext(); count++) {
 //			i.next();
-//		}
+//		}# WARNING: head commit changed in the meantime
+
+
 //
 //		return count;
 		

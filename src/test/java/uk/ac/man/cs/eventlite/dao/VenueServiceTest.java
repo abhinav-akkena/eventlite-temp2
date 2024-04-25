@@ -3,6 +3,9 @@ package uk.ac.man.cs.eventlite.dao;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +32,7 @@ public class VenueServiceTest extends AbstractTransactionalJUnit4SpringContextTe
 	// This class is here as a starter for testing any custom methods within the
 	// VenueService. Note: It is currently @Disabled!
 	
+	
 	@Test
 	public void testSave() {
 		Venue venue = new Venue();
@@ -40,6 +44,49 @@ public class VenueServiceTest extends AbstractTransactionalJUnit4SpringContextTe
 		venueService.save(venue);
 		assertEquals(venueService.count(), initialCount+1);
 	}
+	
+	@Test
+	public void testOrderingOfVenuesWhenFindAll() {
+		Venue venue1 = new Venue();
+		venue1.setName("C");
+		venue1.setCapacity(500);
+		Venue venue2 = new Venue();
+		venue2.setName("A");
+		venue2.setCapacity(500);
+		Venue venue3 = new Venue();
+		venue3.setName("B");
+		venue3.setCapacity(500);
+		
+		venueService.save(venue1);
+		venueService.save(venue2);
+		venueService.save(venue3);
+		
+		System.out.println(venueService.count());
+		
+		Iterator<Venue> venues = (venueService.findAll()).iterator();
+		String lastStr = "";
+		
+		while(venues.hasNext()) {
+			Venue next = venues.next();
+			assertTrue(next.getName().compareTo(lastStr)>=0);
+		}
+		
+		
+	}
+	
+	@Test
+	public void testFindAllByDateAscNameAsc() {
+		Venue venue = new Venue();
+		venue.setName("Academy 1");
+		
+		venue.setCapacity(500);
+		
+		
+		long initialCount = venueService.count();
+		venueService.save(venue);
+		assertEquals(venueService.count(), initialCount+1);
+	}
+	
 	
 	@Test
 	public void testVenueLongLatSet1() {

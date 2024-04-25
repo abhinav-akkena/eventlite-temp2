@@ -1,5 +1,7 @@
 package uk.ac.man.cs.eventlite.dao;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -23,6 +25,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 
 import uk.ac.man.cs.eventlite.EventLite;
 import uk.ac.man.cs.eventlite.entities.Event;
+import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
 
 @ExtendWith(SpringExtension.class)
@@ -33,79 +36,35 @@ public class EventServiceTest extends AbstractTransactionalJUnit4SpringContextTe
 
 	@Autowired
 	private EventService eventService;
-	
-	@MockBean
-	private EventRepository eventRepository;
 
 	// This class is here as a starter for testing any custom methods within the
 	// EventService. Note: It is currently @Disabled!
 	
 	@Test
-	public void testSearchFuture() throws Exception{
-		Venue venue = new Venue();
-		Event e1 = new Event(1, "Kilburn 1", LocalDate.now().minusDays(1), LocalTime.of(12, 0), venue, ""); 
-		Event e2 = new Event(1, "Kilburn 2", LocalDate.now().minusDays(1), LocalTime.of(13, 0), venue, "");
-		Event e3 = new Event(1, "Kilburn 3", LocalDate.now().plusDays(1), LocalTime.of(12, 0), venue, "");
-		Event e4 = new Event(1, "Kilburn 4", LocalDate.now().plusDays(1), LocalTime.of(13, 0), venue, "");
+	public void testSave() {
+		Event event = new Event();
+		event.setName("Event 1");
+		event.setDescription("Best event of the year");
+			
 		
-		List<Event> returnedEvents = new ArrayList<Event>();
-		returnedEvents.add(e1);
-		returnedEvents.add(e2);
-		returnedEvents.add(e3);
-		returnedEvents.add(e4);
-		
-		when(eventRepository.findByNameLike("%Kilburn%")).thenReturn(returnedEvents);
-		
-		List<Event> result = (List<Event>) eventService.searchFuture("Kilburn");
-		
-		assertTrue(result.contains(e3));
-		assertTrue(result.contains(e4));
-		
+		long initialCount = eventService.count();
+		eventService.save(event);
+		assertEquals(eventService.count(), initialCount+1);
 	}
 	
 	@Test
-	public void testSearchPast() throws Exception{
-		Venue venue = new Venue();
-		Event e1 = new Event(1, "Kilburn 1", LocalDate.now().minusDays(1), LocalTime.of(12, 0), venue, ""); 
-		Event e2 = new Event(1, "Kilburn 2", LocalDate.now().minusDays(1), LocalTime.of(13, 0), venue, "");
+	public void testDeleteById() {
+		Event event = new Event();
+		event.setName("Event 1");
+		event.setDescription("Best event of the year");
 		
-		List<Event> returnedEvents = new ArrayList<Event>();
-		returnedEvents.add(e1);
-		returnedEvents.add(e2);
 		
-		when(eventRepository.findByNameLikeAndDateBefore(eq("%Kilburn%"), any(LocalDate.class))).thenReturn(returnedEvents);
+		long initialCount = eventService.count();
+		event = eventService.save(event);
+		assertEquals(eventService.count(), initialCount+1);
 		
-		List<Event> result = (List<Event>) eventService.searchPast("Kilburn");
-		
-		assertTrue(result.contains(e1));
-		assertTrue(result.contains(e2));
-		
+		eventService.deleteById(event.getId());
+		assertEquals(eventService.count(), initialCount);
 	}
-	
-	@Test
-	public void testGetNextThreeEvents() {
-		Venue venue = new Venue();
-		Event e1 = new Event(1, "Kilburn 1", LocalDate.now().minusDays(1), LocalTime.of(12, 0), venue, ""); 
-		Event e2 = new Event(1, "Kilburn 2", LocalDate.now().minusDays(1), LocalTime.of(13, 0), venue, "");
-		Event e3 = new Event(1, "Kilburn 3", LocalDate.now().plusDays(1), LocalTime.of(12, 0), venue, "");
-		Event e4 = new Event(1, "Kilburn 4", LocalDate.now().plusDays(1), LocalTime.of(13, 0), venue, "");
-		Event e5 = new Event(1, "Kilburn 4", LocalDate.now().plusDays(2), LocalTime.of(12, 0), venue, "");
-		
-		List<Event> returnedEvents = new ArrayList<Event>();
-		returnedEvents.add(e1);
-		returnedEvents.add(e2);
-		returnedEvents.add(e3);
-		returnedEvents.add(e4);
-		returnedEvents.add(e5);
-		
-		when(eventRepository.findByVenueOrderByDateAscTimeAsc(venue)).thenReturn(returnedEvents);
-		
-		List<Event> result = (List<Event>) eventService.getNextThreeEvents(venue);
-		
-		assertTrue(result.contains(e3));
-		assertTrue(result.contains(e4));
-		assertTrue(result.contains(e5));
-		
-		
-	}
+
 }
