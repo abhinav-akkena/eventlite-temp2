@@ -1,9 +1,7 @@
 package uk.ac.man.cs.eventlite.controllers;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -11,11 +9,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -38,13 +35,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
 import uk.ac.man.cs.eventlite.exceptions.EventNotFoundException;
+
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(EventsController.class)
@@ -66,6 +63,7 @@ public class EventsControllerTest {
 	@MockBean
 	private VenueService venueService;
 
+	private Optional<Event> testEvent;
 	@Test
 	public void getIndexWhenNoEvents() throws Exception {
 		when(eventService.findAll()).thenReturn(Collections.<Event>emptyList());
@@ -650,5 +648,53 @@ verifyNoInteractions(eventService);
 	    
     }
 	
-	
+
+    @Test	
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void deleteEventAsAdmin() throws Exception {
+	    long eventId = 1L;
+	    Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venue1.setId(1);
+		venueService.save(venue1);
+        Event mockEvent =(new Event(1, "Test Event", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0),venue1,"Test description")); 
+        
+        eventService.save(mockEvent);
+
+        when(eventService.findById(eventId)).thenReturn(Optional.of(mockEvent));
+	    
+	    mvc.perform(post("/events/deleted")
+	    		.param("eventID", "1")
+	            .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/events"));   
+    }
+    
+    @Test
+	@WithMockUser(roles = "ADMIN")
+	public void getDeleteFormAsAdminShowsForm() throws Exception {
+	    long venueId = 1L;	
+	    long eventId = 1L;
+	    Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venue1.setId(1);
+		venueService.save(venue1);
+        Event mockEvent =(new Event(1, "Test Event", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0),venue1,"Test description")); 
+        
+        eventService.save(mockEvent);
+
+        when(eventService.findById(eventId)).thenReturn(Optional.of(mockEvent));
+	    mvc.perform(get("/events/delete")
+	    		.param("id", "1")
+	            .with(csrf()))
+	            .andExpect(status().isOk())
+	                    .andExpect(view().name("events/delete_event"))
+	                    .andExpect(model().attribute("id", "1"));
+	}	
 }

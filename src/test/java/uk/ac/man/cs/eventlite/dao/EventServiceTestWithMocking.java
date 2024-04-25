@@ -112,4 +112,48 @@ public class EventServiceTestWithMocking extends AbstractTransactionalJUnit4Spri
 		
 		
 	}
+	
+
+	public void testFindFuture() throws Exception{
+		Venue venue = new Venue();
+		Event e1 = new Event(1, "Kilburn 1", LocalDate.now().minusDays(1), LocalTime.of(12, 0), venue, ""); 
+		Event e2 = new Event(1, "Kilburn 2", LocalDate.now().minusDays(1), LocalTime.of(13, 0), venue, "");
+		Event e3 = new Event(1, "Kilburn 3", LocalDate.now().plusDays(1), LocalTime.of(12, 0), venue, "");
+		Event e4 = new Event(1, "Kilburn 4", LocalDate.now().plusDays(1), LocalTime.of(13, 0), venue, "");
+		
+		List<Event> returnedEvents = new ArrayList<Event>();
+		returnedEvents.add(e1);
+		returnedEvents.add(e2);
+		returnedEvents.add(e3);
+		returnedEvents.add(e4);
+		
+	    when(eventRepository.findAllByOrderByDateAscTimeAsc()).thenReturn(returnedEvents);
+		
+		
+		List<Event> result = (List<Event>) eventService.findFuture();
+		
+		assertTrue(result.contains(e3));
+		assertTrue(result.contains(e4));
+		
+	}
+	
+	@Test
+	public void testFindPast() throws Exception{
+		Venue venue = new Venue();
+		Event e1 = new Event(1, "Kilburn 1", LocalDate.now().minusDays(1), LocalTime.of(12, 0), venue, ""); 
+		Event e2 = new Event(1, "Kilburn 2", LocalDate.now().minusDays(1), LocalTime.of(13, 0), venue, "");
+		
+		List<Event> returnedEvents = new ArrayList<Event>();
+		returnedEvents.add(e1);
+		returnedEvents.add(e2);
+		
+	    when(eventRepository.findAllByOrderByDateAscTimeAsc()).thenReturn(returnedEvents);
+		
+		
+		List<Event> result = (List<Event>) eventService.findPast();
+		
+		assertTrue(result.contains(e1));
+		assertTrue(result.contains(e2));
+		
+	}
 }
