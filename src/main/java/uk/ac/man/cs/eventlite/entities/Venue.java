@@ -25,10 +25,10 @@ public class Venue {
 	@Min(value=0, message="Capacity has to be greater than 0")
 	private int capacity;
 	
-		
+	@Size(max=299, message="Address can't be longer than 299 characters")
 	private String address;
 	
-	@Size(max=499, message="Address can't be longer than 499 characters")
+	@Size(max=499, message="Postcode can't be longer than 499 characters")
 	private String postcode;
 	
 	private double longitude = 0.0;
