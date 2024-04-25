@@ -30,7 +30,7 @@ public class MastodonController {
                                   RedirectAttributes redirectAttributes) {
         try {
             mastodonService.shareStatus(status);
-            redirectAttributes.addFlashAttribute("successMessage", "Post published successfully on Mastodon.");
+            redirectAttributes.addFlashAttribute("successMessage", "Post published successfully on Mastodon.  Content: " + status);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to publish post: " + e.getMessage());
         }

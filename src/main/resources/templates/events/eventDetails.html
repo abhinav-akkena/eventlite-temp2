@@ -57,7 +57,7 @@
         </div>
         
         <!-- Share on Mastodon form -->
-        <div class="card mt-3">
+         <div class="card mt-3">
 		    <div class="card-body">
 		        <h5 class="card-title">Share Event</h5>
 		        <form id="statusUpdateForm" th:action="@{/events/share-on-mastodon}" method="post">
@@ -66,12 +66,38 @@
 		            </div>
 		            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
 		            <input type="hidden" name="eventId" th:value="${event.id}" />
-		            <button type="submit" class="btn btn-info"><i class="fa-solid fa-feather"></i> Share on Mastodon</button>
+		            <button type="submit" id="submit_button" class="btn btn-info"><i class="fa-solid fa-feather"></i> Share on Mastodon</button>
 		        </form>
-		        <div id="statusUpdateFeedback" class="mt-2"></div>
+		        <div th:if="${successMessage}" class="alert alert-success alert-dismissable" role="alert">
+				    <span th:text="${successMessage}">Success! Your message here.</span>
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				        <span aria-hidden="true">&times;</span>
+				    </button>
+				</div>
+						        
+		          <div th:if="${errorMessage}" class="alert alert-danger alert-dismissable" role="alert">
+					   <span th:text="${errorMessage}"></span>
+					   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					   <span aria-hidden="true">&times;</span>
+					   </button>
+				  </div>
 		    </div>
 		</div>
-        
+
+		
+		<script th:inline="javascript">
+		document.getElementById('statusUpdateForm').addEventListener('submit', function(event) {
+			setTimeout(function() {
+				var content = document.getElementById('statusContent').value;
+				var statusUpdateFeedback = document.getElementById('statusUpdateFeedback');
+				statusUpdateFeedback.innerHTML = '<div class="alert alert-success" role="alert">Post published successfully: ' + content + '</div>';
+				document.getElementById('statusContent').value = '';
+			}, 1000);
+		});
+		</script>
+
+	
+
         
     </div>
 </body>

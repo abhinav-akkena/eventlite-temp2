@@ -77,9 +77,5 @@ public class MastodonServiceImpl implements MastodonService {
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
         
         ResponseEntity<String> response = restTemplate.postForEntity(mastodonInstanceUrl + "/api/v1/statuses", entity, String.class);
-        
-        if (response.getStatusCode() != HttpStatus.CREATED) {
-            throw new Exception("Failed to post status to Mastodon: " + response.toString());
-        }
     }
 }
