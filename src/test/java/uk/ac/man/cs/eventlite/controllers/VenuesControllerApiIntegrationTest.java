@@ -68,4 +68,27 @@ public class VenuesControllerApiIntegrationTest extends AbstractTransactionalJUn
 			.jsonPath("$._embedded.venues[1].name").value(equalTo("Kilburn Building"))
 			.jsonPath("$._embedded.venues[2].name").value(equalTo("Online"));
 	}
+	
+	@Test
+	public void getVenueFound() {
+		client.get().uri("/venues/1").accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
+		.expectHeader().contentType(MediaType.APPLICATION_JSON).expectBody()
+		.jsonPath("$._links.self.href").value(endsWith("/api/venues/1"));
+	}
+	
+	@Test
+	public void getVenueEvents() {
+		client.get().uri("/venues/1/events").accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
+		.expectHeader().contentType(MediaType.APPLICATION_JSON).expectBody()
+		.jsonPath("$._links.self.href").value(endsWith("/api/venues/1/events"))
+		.jsonPath("$._embedded.events.length()").value(equalTo(3));
+	}
+	
+	@Test
+	public void getVenueNextThreeEvents() {
+		client.get().uri("/venues/1/next3events").accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
+		.expectHeader().contentType(MediaType.APPLICATION_JSON).expectBody()
+		.jsonPath("$._links.self.href").value(endsWith("/api/venues/1/next3events"))
+		.jsonPath("$._embedded.events.length()").value(equalTo(3));
+	}
 }
