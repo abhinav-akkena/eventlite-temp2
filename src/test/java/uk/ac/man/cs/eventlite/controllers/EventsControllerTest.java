@@ -2,10 +2,12 @@ package uk.ac.man.cs.eventlite.controllers;
 import java.time.LocalDate;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -167,19 +169,48 @@ public class EventsControllerTest {
     @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
     public void deleteEventAsAdmin() throws Exception {
 	    long eventId = 1L;
-        Event mockEvent = new Event();
-        mockEvent.setId(eventId);
-        mockEvent.setName("Sample Event");
+	    Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venue1.setId(1);
+		venueService.save(venue1);
+        Event mockEvent =(new Event(1, "Test Event", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0),venue1,"Test description")); 
+        
+        eventService.save(mockEvent);
 
         when(eventService.findById(eventId)).thenReturn(Optional.of(mockEvent));
 	    
-	    MvcResult result = mvc.perform(get("/events/delete?id={id}", eventId)
+	    mvc.perform(post("/events/deleted")
+	    		.param("eventID", "1")
 	            .with(csrf()))
-	            .andReturn();
-	    assertNotNull(result);
-	    
-
-
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/events"));   
     }
-	
+    
+    @Test
+	@WithMockUser(roles = "ADMIN")
+	public void getDeleteFormAsAdminShowsForm() throws Exception {
+	    long venueId = 1L;	
+	    long eventId = 1L;
+	    Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venue1.setId(1);
+		venueService.save(venue1);
+        Event mockEvent =(new Event(1, "Test Event", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0),venue1,"Test description")); 
+        
+        eventService.save(mockEvent);
+
+        when(eventService.findById(eventId)).thenReturn(Optional.of(mockEvent));
+	    mvc.perform(get("/events/delete")
+	    		.param("id", "1")
+	            .with(csrf()))
+	            .andExpect(status().isOk())
+	                    .andExpect(view().name("events/delete_event"))
+	                    .andExpect(model().attribute("id", "1"));
+	}	
 }
