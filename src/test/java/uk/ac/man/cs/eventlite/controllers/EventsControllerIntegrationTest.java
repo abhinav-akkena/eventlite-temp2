@@ -1,7 +1,19 @@
 package uk.ac.man.cs.eventlite.controllers;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.reactive.server.WebTestClient.*;
+
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +29,7 @@ import org.springframework.test.context.junit4.AbstractTransactionalJUnit4Spring
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import uk.ac.man.cs.eventlite.EventLite;
+import uk.ac.man.cs.eventlite.entities.Event;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = EventLite.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -46,4 +59,72 @@ public class EventsControllerIntegrationTest extends AbstractTransactionalJUnit4
 					assertThat(result.getResponseBody(), containsString("99"));
 				});
 	}
+	
+	@Test
+	public void checkEventPage() throws Exception {
+		client.get().uri("/events")
+        .accept(MediaType.TEXT_HTML)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(String.class)
+        .value(body -> {
+            assertTrue(body.contains("<h1>All events</h1>")); // Assuming the view contains a title
+        });
+	}
+	
+	@Test
+	public void searchEventNotFound() throws Exception {
+		client.get()
+		.uri(uriBuilder -> uriBuilder.path("/events/search")
+                .queryParam("inputSearch", "beanSequel")
+                .build())
+        .accept(MediaType.TEXT_HTML)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(String.class)
+        .value(body -> {
+            assertTrue(body.contains("<h1>All events</h1>")); // Assuming the view contains a title
+        });
+	}
+	
+	
+	@Test
+	public void searchEventFound() throws Exception {
+		client.get()
+		.uri(uriBuilder -> uriBuilder.path("/events/search")
+                .queryParam("inputSearch", "COMP")
+                .build())
+        .accept(MediaType.TEXT_HTML)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(String.class)
+        .value(body -> {
+            assertTrue(body.contains("<h1>All events</h1>")); // Assuming the view contains a title
+        });
+	}
+	
+	@Test
+	public void eventPageValidId() throws Exception {
+		client.get().uri("/events/1")
+        .accept(MediaType.TEXT_HTML)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(String.class)
+        .value(body -> {
+            assertTrue(body.contains("COMP23412")); // Assuming the view contains a title
+        });
+	}
+	
+	@Test
+	public void deleteEventPageAsAdmin() throws Exception {
+		client.get().uri("/events/delete?id=1")
+        .accept(MediaType.TEXT_HTML)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(String.class)
+        .value(body -> {
+            assertTrue(body.contains("Delete Event")); // Assuming the view contains a title
+        });
+	}
+
 }

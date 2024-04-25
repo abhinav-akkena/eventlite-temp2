@@ -6,21 +6,21 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,16 +41,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.DefaultCsrfToken;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import uk.ac.man.cs.eventlite.config.Security;
 import uk.ac.man.cs.eventlite.dao.EventService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
+import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
 import uk.ac.man.cs.eventlite.exceptions.VenueNotFoundException;
-import uk.ac.man.cs.eventlite.entities.Event;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(VenuesController.class)
@@ -354,6 +351,39 @@ public class VenuesControllerTest {
 	    verifyNoInteractions(venueService);
 	}
 	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void LongAddressUpdateVenueFailAsAdmin() throws Exception {
+	    
+	    String newAddress = "";
+		for(int i = 0; i<=300; i++) {
+			newAddress += 'c';//Making a address longer than 500 characters
+		}
+		long venueId = 1L;
+	    String updatedName = "Updated Venue Name";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "200";
+	    
+	    updatedPostcode = "";
+		for(int i = 0; i<=500; i++) {
+			updatedPostcode += 'c';//Making a postcode longer than 500 characters
+		}
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", "Test Venue")
+	        .param("capacity", "340")
+	        .param("postcode", "3456789098765")
+	        .param("address", newAddress)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
     @Test
     public void showExistingVenue() throws Exception {
         Long venueId = 1L;
@@ -520,7 +550,78 @@ public class VenuesControllerTest {
         
 	    verifyNoInteractions(venueService);
 	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void LongAddressAddVenueFailAsAdmin() throws Exception {
+	    
+	    String newAddress = "";
+		for(int i = 0; i<=300; i++) {
+			newAddress += 'c';//Making a address longer than 500 characters
+		}
+	    
+	    mvc.perform(post("/venues/added")
+	        .param("name", "Test Venue")
+	        .param("capacity", "340")
+	        .param("postcode", "3456789098765")
+	        .param("address", newAddress)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/add"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
 
 
+    @Test	
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void deleteVenueAsAdmin() throws Exception {
+	    long eventId = 1L;
+	    Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venue1.setId(1);
+		venueService.save(venue1);
+        Event mockEvent =(new Event(1, "Test Event", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0),venue1,"Test description")); 
+        
+        eventService.save(mockEvent);
+
+        when(venueService.findById(eventId)).thenReturn(venue1);
+	    
+	    mvc.perform(post("/venues/deleted")
+	    		.param("venueID", "1")
+	            .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues"));   
+    }
+    
+    @Test
+	@WithMockUser(roles = "ADMIN")
+	public void getDeleteFormAsAdminShowsForm() throws Exception {
+	    long venueId = 1L;	
+	    long eventId = 1L;
+	    Venue venue1 = new Venue();
+		venue1.setCapacity(120);
+		venue1.setName("Kilburn Building");
+		venue1.setAddress("Kilburn Building, Oxford Rd, Manchester");
+		venue1.setPostcode("M13 9PL");
+		venue1.setId(1);
+		venueService.save(venue1);
+        Event mockEvent =(new Event(1, "Test Event", LocalDate.of(2024, 10, 7), LocalTime.of(9, 0),venue1,"Test description")); 
+        
+        eventService.save(mockEvent);
+
+        when(venueService.findById(eventId)).thenReturn(venue1);
+	    mvc.perform(get("/venues/delete")
+	    		.param("id", "1")
+	            .with(csrf()))
+	            .andExpect(status().isOk())
+	                    .andExpect(view().name("venues/delete_venue"))
+	                    .andExpect(model().attribute("id", "1"));
+	}
    
 }

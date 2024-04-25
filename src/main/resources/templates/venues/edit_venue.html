@@ -29,11 +29,11 @@
       </div>
       <div class="form-group">
         <label for="address">Address:</label>
-        <textarea id="address" name="address" class="form-control" th:text="${venue.address}"></textarea>
+        <textarea id="address" name="address" class="form-control" th:text="${venue.address}" maxlength="299"></textarea>
       </div>
       <div class="form-group">
         <label for="postcode">Post Code:</label>
-        <input type="text" id="postcode" name="postcode" th:value="${venue.postcode}" class="form-control">
+        <input type="text" id="postcode" name="postcode" th:value="${venue.postcode}" class="form-control" maxlength="499">
       </div>
       <div class="form-group">
         <button type="submit" class="btn btn-primary">Update Venue</button>
