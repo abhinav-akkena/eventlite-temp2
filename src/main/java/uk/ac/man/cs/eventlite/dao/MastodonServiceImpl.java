@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +27,8 @@ import uk.ac.man.cs.eventlite.entities.MastodonPost;
 @Service
 public class MastodonServiceImpl implements MastodonService {
 
-    private final RestTemplate restTemplate;
+	@Autowired
+    private RestTemplate restTemplate;
 
     @Value("${mastodon.access-token}")
     private String accessToken;
@@ -37,15 +39,10 @@ public class MastodonServiceImpl implements MastodonService {
     @Value("${mastodon.user-id}")
     private String mastodonUserId;
     
-    public MastodonServiceImpl() {
-        this.restTemplate = new RestTemplate();
-    }
-
     @Override
     public List<MastodonPost> fetchLastThreePosts() {
         String url = mastodonInstanceUrl + "/api/v1/accounts/" + mastodonUserId + "/statuses";
 
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
         ObjectMapper mapper = new ObjectMapper();
