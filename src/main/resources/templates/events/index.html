@@ -20,7 +20,10 @@
 	      <div class="input-group mb3">
 	        <input type="search" class="form-control" id="inputSearch" name="inputSearch" aria-describedby="searchBar" placeholder="Search for events">
 	        <div class="input-group-append">
-	            <button type="submit" class="btn btn-secondary">Submit</button>
+	            <button type="submit" class="btn btn-primary">Search</button>
+	        </div>
+	        <div class="input-group-append">
+	            <a class="btn btn-secondary" href="/events">Clear</a>
 	        </div>
 	      </div>
 	    </form>
@@ -104,6 +107,36 @@
     </div>
     <div style="padding-bottom: 1em;">
     <div id='map' style="width: 100%; height: 40em; padding-top: 1em;"></div>
+        <script th:inline="javascript">
+            
+            var futureEvents = [[${futureEvents}]];
+            var markers = [];
+            
+            if (futureEvents.length == 0) {
+                x = 0 
+                y = 0 
+            }
+            
+            else{
+                x = futureEvents[0].venue.longitude
+                y = futureEvents[0].venue.latitude
+            }
+            
+            mapboxgl.accessToken = 'pk.eyJ1IjoiYWFwOTAwMiIsImEiOiJjbHYyYW84eHowOGM0MmlwZm94cXEwbWo1In0.eCue2SRjuxU3jwYyac_vNg'; 
+            const map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [x, y],
+                zoom: 5
+            });
+            
+            for (var i = 0;i < futureEvents.length;i++){
+                markers[i] = new mapboxgl.Marker({ color: 'red' })
+                .setLngLat([futureEvents[i].venue.longitude,futureEvents[i].venue.latitude])
+                .addTo(map);
+               
+              };
+        </script>
 <script th:inline="javascript">
     var futureEvents = [[${futureEvents}]];
     var markers = [];
