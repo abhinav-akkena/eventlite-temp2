@@ -137,6 +137,42 @@
                
               };
         </script>
+<script th:inline="javascript">
+    var futureEvents = [[${futureEvents}]];
+    var markers = [];
+    
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYWFwOTAwMiIsImEiOiJjbHYyYW84eHowOGM0MmlwZm94cXEwbWo1In0.eCue2SRjuxU3jwYyac_vNg'; 
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        zoom: 10 
+    });
+
+    if (futureEvents.length > 0) {
+        var bounds = new mapboxgl.LngLatBounds();
+        
+        for (var i = 0; i < futureEvents.length; i++) {
+            var coord = [futureEvents[i].venue.longitude, futureEvents[i].venue.latitude];
+            markers[i] = new mapboxgl.Marker({ color: 'red' })
+                .setLngLat(coord)
+                .addTo(map)
+                .setPopup(
+                    new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(
+                            `<h3>${futureEvents[i].name}</h3><p>${futureEvents[i].time}</p>`
+                        )
+                );
+            bounds.extend(coord);
+        }
+        
+        map.fitBounds(bounds, {
+            padding: 200 
+        });
+    } else {
+        map.setCenter([0, 0]); 
+    }
+</script>
+
     
     </div>
     </div>
