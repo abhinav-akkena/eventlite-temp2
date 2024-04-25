@@ -18,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +37,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -146,23 +150,21 @@ public class VenuesControllerTest {
 	    String updatedName = "Updated Venue Name";
 	    String updatedAddress = "Updated Address";
 	    String updatedPostcode = "Updated Postcode";
-	    int updatedCapacity = 200;
+	    String updatedCapacity = "200";
 
 	    when(venueService.findById(venueId)).thenReturn(testVenue);
-
-	    CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token-value");
 	    
 	    mvc.perform(post("/venues/update/{id}", venueId)
-	        .sessionAttr("_csrf", csrfToken)
-	        .param("_csrf", csrfToken.getToken())
-	        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
 	        .param("name", updatedName)
 	        .param("address", updatedAddress)
-	        .param("capacity", String.valueOf(updatedCapacity))
-	        .param("postcode", updatedPostcode))
-	        .andDo(print())
-	        
-	        ;
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues"));
+
+        
+	    verify(venueService).save(any(Venue.class));
 	}
 
 	
@@ -172,6 +174,7 @@ public class VenuesControllerTest {
 	    long venueId = 1L;
 	    when(venueService.findById(venueId)).thenReturn(testVenue); // Assuming testVenue is already set up
 
+	   
 	    mvc.perform(get("/venues/edit/{id}", venueId))
 	            .andExpect(status().isOk())
 	            .andExpect(view().name("venues/edit_venue"))
@@ -185,10 +188,170 @@ public class VenuesControllerTest {
 	@Test
 	@WithMockUser
 	public void updateVenuePermCheck() throws Exception {
+		long venueId = 1L;
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
 	    mvc.perform(post("/venues/update/1")
 	            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
 	            .param("name", "Attempted Update Name"))
 	            .andExpect(status().isForbidden());
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void NoNameUpdateFailByAdmin() throws Exception {
+	    long venueId = 1L;
+	    String updatedName = "";
+	    String updatedAddress = "Updated Address";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "200";
+
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", updatedName)
+	        .param("address", updatedAddress)
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void CapacityNotNumberUpdateFailByAdmin() throws Exception {
+	    long venueId = 1L;
+	    String updatedName = "New Name";
+	    String updatedAddress = "Updated Address";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "twenty";
+
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", updatedName)
+	        .param("address", updatedAddress)
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void CapacityNegativeNumberUpdateFailByAdmin() throws Exception {
+	    long venueId = 1L;
+	    String updatedName = "New Name";
+	    String updatedAddress = "Updated Address";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "-10";
+
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", updatedName)
+	        .param("address", updatedAddress)
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void NoCapacityUpdateFailByAdmin() throws Exception {
+	    long venueId = 1L;
+	    String updatedName = "New Name";
+	    String updatedAddress = "Updated Address";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "";
+
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", updatedName)
+	        .param("address", updatedAddress)
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void LongNameUpdateVenueFailAsAdmin() throws Exception {
+	    long venueId = 1L;
+	    String updatedName = "Updated Venue Name";
+	    String updatedAddress = "Updated Address";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "200";
+	    
+	    String newName = "";
+		for(int i = 0; i<=255; i++) {
+			newName += 'c';//Making a name longer than 255 characters
+		}
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", newName)
+	        .param("address", updatedAddress)
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void LongPostcodeUpdateVenueFailAsAdmin() throws Exception {
+	    long venueId = 1L;
+	    String updatedName = "Updated Venue Name";
+	    String updatedAddress = "Updated Address";
+	    String updatedPostcode = "Updated Postcode";
+	    String updatedCapacity = "200";
+	    
+	    updatedPostcode = "";
+		for(int i = 0; i<=500; i++) {
+			updatedPostcode += 'c';//Making a postcode longer than 500 characters
+		}
+	    when(venueService.findById(venueId)).thenReturn(testVenue);
+	    
+	    mvc.perform(post("/venues/update/{id}", venueId)
+	        .param("name", updatedName)
+	        .param("address", updatedAddress)
+	        .param("capacity", updatedCapacity)
+	        .param("postcode", updatedPostcode)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/edit/"+venueId))
+        .andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
 	}
 	
     @Test
@@ -229,6 +392,7 @@ public class VenuesControllerTest {
     public void testAddVenueSuccess() throws Exception {
         mvc.perform(post("/venues/added?name=TestVenue&capacity=300&postcode=23&address=hi")
         		.with(csrf()))
+        		.andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/venues"));
 
         
@@ -261,6 +425,102 @@ public class VenuesControllerTest {
                 .andExpect(status().isForbidden());
         verify(venueService, never()).save(any(Venue.class));
     }
+	
+	@Test
+    @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+    public void testAccessAdd() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/venues/add"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.view().name("venues/add_venue"));
+    }
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void LongNameAddVenueFailAsAdmin() throws Exception {
+	    
+	    String newName = "";
+		for(int i = 0; i<=255; i++) {
+			newName += 'c';//Making a name longer than 255 characters
+		}
+	    
+	    mvc.perform(post("/venues/added")
+	        .param("name", newName)
+	        .param("capacity", "300")
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/add"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void LongPostcodeAddVenueFailAsAdmin() throws Exception {
+	    
+	    String newPost = "";
+		for(int i = 0; i<=500; i++) {
+			newPost += 'c';//Making a postcode longer than 500 characters
+		}
+	    
+	    mvc.perform(post("/venues/added")
+	        .param("name", "Test Venue")
+	        .param("capacity", "300")
+	        .param("postcode", newPost)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/add"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void NegativeCapacityAddVenueFailAsAdmin() throws Exception {
+	    
+	    String newPost = "";
+		for(int i = 0; i<=50; i++) {
+			newPost += 'c';//Making a postcode longer than 500 characters
+		}
+	    
+	    mvc.perform(post("/venues/added")
+	        .param("name", "Test Venue")
+	        .param("capacity", "-300")
+	        .param("postcode", newPost)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/add"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+	
+	@Test
+	@WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
+	public void NoCapacityAddVenueFailAsAdmin() throws Exception {
+	    
+	    String newPost = "";
+		for(int i = 0; i<=50; i++) {
+			newPost += 'c';//Making a postcode longer than 500 characters
+		}
+	    
+	    mvc.perform(post("/venues/added")
+	        .param("name", "Test Venue")
+	        .param("capacity", "")
+	        .param("postcode", newPost)
+	        .with(csrf()))
+	    .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/venues/add"))
+		.andExpect(flash().attributeExists("errorMessage"));
+
+        
+	    verifyNoInteractions(venueService);
+	}
+
 
    
 }

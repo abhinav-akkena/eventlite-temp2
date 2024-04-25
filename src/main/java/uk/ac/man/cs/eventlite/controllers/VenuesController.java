@@ -108,21 +108,27 @@ public class VenuesController {
 
 	@PostMapping("/update/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
-	public String updateVenue(@PathVariable("id") long id, HttpServletRequest request, RedirectAttributes redirectAttributes) {
-	    Venue venue = venueServices.findById(id);
-	    if (venue == null) {
-	        throw new VenueNotFoundException(id);
-	    }
-
-	    venue.setName(request.getParameter("name"));
-	    venue.setAddress(request.getParameter("address"));
-	    venue.setCapacity(Integer.parseInt(request.getParameter("capacity")));
-	    venue.setPostcode(request.getParameter("postcode"));
-
-	    venueServices.save(venue);
-	    redirectAttributes.addFlashAttribute("success", "Venue updated successfully!");
-
-	    return "redirect:/venues";
+	public String updateVenue(@PathVariable("id") long id, @Valid Venue venue, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
+		try {
+			if(error.hasErrors()) {
+				String ErrorMessage= "Error: Please fix these problems : ";
+				List<ObjectError> errors = error.getAllErrors();
+				for (ObjectError e: errors) {
+					ErrorMessage += e.getDefaultMessage() + " & ";
+				}
+				ErrorMessage = ErrorMessage.substring(0, ErrorMessage.length()-2);
+				redirectAttributes.addFlashAttribute("errorMessage", ErrorMessage);
+				return "redirect:/venues/edit/"+id;
+			}
+			else {
+				venueServices.save(venue);
+		       
+			}
+        }catch(Exception e) {
+        	redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        	return "redirect:/venues/edit/"+id;
+        }
+		return "redirect:/venues";
 	}
 	
 	@GetMapping("/delete")
@@ -158,7 +164,6 @@ public class VenuesController {
 	
 	@PostMapping("/added")
 	public String addVenue(@Valid Venue venue, BindingResult error, RedirectAttributes redirectAttributes, Model model) {
-		System.out.println("Helloooooooo");
 		try {
 			if(error.hasErrors()) {
 				String ErrorMessage= "Error: Please fix these problems : ";
