@@ -55,4 +55,11 @@ public class EventsControllerApiIntegrationTest extends AbstractTransactionalJUn
 		.expectHeader().contentType(MediaType.APPLICATION_JSON).expectBody()
 		.jsonPath("$._links.self.href").value(endsWith("/api/events/1"));
 	}
+	
+	@Test 
+	public void getEventVenue() {
+		client.get().uri("/events/1/venue").accept(MediaType.APPLICATION_JSON).exchange().expectStatus().isOk()
+		.expectHeader().contentType(MediaType.APPLICATION_JSON).expectBody()
+		.jsonPath("$._links.self.href").value(endsWith("/api/venues/1"));
+	}
 }
