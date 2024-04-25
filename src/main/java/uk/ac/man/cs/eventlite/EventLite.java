@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan({"uk.ac.man.cs.eventlite.*"})
 public class EventLite {
 
 	public static void main(String[] args) {
