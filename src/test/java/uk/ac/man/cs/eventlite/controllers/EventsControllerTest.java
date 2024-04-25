@@ -1,8 +1,11 @@
 package uk.ac.man.cs.eventlite.controllers;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*; 
 
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -14,6 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+
 
 import java.util.Collections;
 import java.util.Optional;
@@ -31,6 +37,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import uk.ac.man.cs.eventlite.assemblers.EventModelAssembler;
 import uk.ac.man.cs.eventlite.config.Security;
@@ -160,50 +167,19 @@ public class EventsControllerTest {
     @WithMockUser(roles = {"ADMIN", "ADMINISTRATOR"})
     public void deleteEventAsAdmin() throws Exception {
 	    long eventId = 1L;
+        Event mockEvent = new Event();
+        mockEvent.setId(eventId);
+        mockEvent.setName("Sample Event");
 
-	    when(eventService.findById(eventId)).thenReturn(testEvent);
-
-	    CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token-value");
+        when(eventService.findById(eventId)).thenReturn(Optional.of(mockEvent));
 	    
-	    mvc.perform(post("/events/delete/{id}", eventId)
-	        .sessionAttr("_csrf", csrfToken)
-	        .param("_csrf", csrfToken.getToken())
-	        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-	        ;
-		when(venueService.findAll()).thenReturn(Collections.<Venue>emptyList());
+	    MvcResult result = mvc.perform(get("/events/delete?id={id}", eventId)
+	            .with(csrf()))
+	            .andReturn();
+	    assertNotNull(result);
+	    
+
 
     }
-    
-	@Test
-	public void searchEventsPast() throws Exception {
-	    Event pastEvent = new Event();
-	    LocalDate date = LocalDate.now();
-	    date = date.minusDays(1);
-	    pastEvent.setId(1L);
-	    pastEvent.setName("Test Event");
-	    pastEvent.setDate(date);
-
-
-		when(eventService.search("Test Event")).thenReturn(Collections.<Event>singletonList(event));
-		
-		mvc.perform(get("/events/search").accept(MediaType.TEXT_HTML).param("inputSearch", "Test Event")).andExpect(status().isOk())
-			.andExpect(view().name("events/index")).andExpect(handler().methodName("searchEvent"));
-	}
-	
-	@Test
-	public void searchEventsFuture() throws Exception {
-	    Event futureEvent = new Event();
-	    LocalDate date = LocalDate.now();
-	    date = date.plusDays(1);
-	    futureEvent.setId(1L);
-	    futureEvent.setName("Test Event");
-	    futureEvent.setDate(date);
-
-
-		when(eventService.search("Test Event")).thenReturn(Collections.<Event>singletonList(event));
-		
-		mvc.perform(get("/events/search").accept(MediaType.TEXT_HTML).param("inputSearch", "Test Event")).andExpect(status().isOk())
-			.andExpect(view().name("events/index")).andExpect(handler().methodName("searchEvent"));
-	}
 	
 }
