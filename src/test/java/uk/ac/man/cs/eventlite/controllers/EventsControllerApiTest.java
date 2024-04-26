@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,6 +56,28 @@ public class EventsControllerApiTest {
 
 		verify(eventService).findAll();
 	}
+	
+	@Test
+	public void getIndexWithVenuesWithLinks() throws Exception {
+		Event e = new Event();
+		e.setId(1);
+		e.setName("Event");
+		e.setDate(LocalDate.now());
+		e.setTime(LocalTime.now());
+		Venue venue1 = new Venue();
+		venue1.setCapacity(500);
+		venue1.setName("Academy 1");
+		venue1.setId(1);
+		e.setVenue(venue1);
+		when(eventService.findById(e.getId())).thenReturn(Optional.ofNullable(e));
+		
+		mvc.perform(get("/api/events/1").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+			.andExpect(jsonPath("$.name", equalTo("Event")))
+			.andExpect(jsonPath("$._links.self.href", endsWith("/api/events/1")))
+			.andExpect(jsonPath("$._links.venue.href", endsWith("/api/events/1/venue")))
+			.andExpect(jsonPath("$._links.events.href", endsWith("/api/events")));
+	}
+
 
 	@Test
 	public void getIndexWithEvents() throws Exception {
