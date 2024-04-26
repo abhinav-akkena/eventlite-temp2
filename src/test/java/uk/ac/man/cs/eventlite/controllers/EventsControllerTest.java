@@ -25,27 +25,35 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import uk.ac.man.cs.eventlite.EventLite;
+import uk.ac.man.cs.eventlite.config.RestClientConfig;
 import uk.ac.man.cs.eventlite.config.Security;
 import uk.ac.man.cs.eventlite.dao.EventService;
+import uk.ac.man.cs.eventlite.dao.MastodonService;
 import uk.ac.man.cs.eventlite.dao.VenueService;
 import uk.ac.man.cs.eventlite.entities.Event;
 import uk.ac.man.cs.eventlite.entities.Venue;
 import uk.ac.man.cs.eventlite.exceptions.EventNotFoundException;
 
-
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(EventsController.class)
-@Import(Security.class)
+@Import({Security.class, EventsController.class})
+@ContextConfiguration(classes = RestTemplateAutoConfiguration.class)
 public class EventsControllerTest {
 
 	@Autowired
@@ -62,6 +70,9 @@ public class EventsControllerTest {
 
 	@MockBean
 	private VenueService venueService;
+	
+	@MockBean
+	private MastodonService mastodonService;
 
 	private Optional<Event> testEvent;
 	@Test

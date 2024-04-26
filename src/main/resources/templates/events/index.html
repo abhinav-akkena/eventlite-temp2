@@ -69,6 +69,30 @@
 	      </tbody>
 	    </table>
     </div>
+    
+    
+	<h3>Social Feed</h3>
+	<div style="overflow-x: auto; display: block">
+	    <table class="table table-striped table-hover">
+	        <thead>
+	            <tr>
+	                <th><i class="fa-solid fa-clock"></i> Time</th>
+	                <th><i class="fa-solid fa-calendar"></i> Date</th>
+	                <th><i class="fa-solid fa-comment"></i> Comment</th>
+	            </tr>
+	        </thead>
+	        <tbody>
+	            <tr th:each="p : ${mastodonPosts}">
+	                <td th:text="${p.formattedTime}">Post time</td>
+	                <td th:text="${p.formattedDate}">Post date</td>
+	                <td>
+	                    <a th:href="${p.url}" th:text="${p.content}">Post Link</a>
+	                </td>
+	            </tr>
+	        </tbody>
+	    </table>
+	</div>
+
     <h2>Past Events</h2>
     <div style="overflow-x: auto; display: block">
 	    <table class="table table-striped table-hover">

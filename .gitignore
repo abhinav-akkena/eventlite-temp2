@@ -1,3 +1,4 @@
 /target/
 .settings/
 /db/
+src/main/resources/application.properies

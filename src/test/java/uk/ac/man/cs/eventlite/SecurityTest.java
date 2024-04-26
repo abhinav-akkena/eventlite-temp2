@@ -9,17 +9,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import uk.ac.man.cs.eventlite.config.Security;
+import uk.ac.man.cs.eventlite.config.StandaloneViews;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(EventLite.class)
 @Import(Security.class)
+@ContextConfiguration(classes = {RestTemplateAutoConfiguration.class, StandaloneViews.class})
 public class SecurityTest {
 
 	// This class isn't strictly necessary. We wouldn't normally make a habit of

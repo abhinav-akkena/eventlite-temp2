@@ -12,11 +12,23 @@
     <version>3.2.1</version>
   </parent>
 
+  <repositories>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
+
   <dependencies>
 	<dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
   	</dependency>
+  	<dependency>
+      <groupId>com.github.sys1yagi</groupId>
+      <artifactId>mastodon4j</artifactId>
+      <version>1.7.0</version>
+    </dependency>
 	<dependency>
 	      <groupId>com.mapbox.mapboxsdk</groupId>
 	      <artifactId>mapbox-sdk-services</artifactId>
@@ -107,6 +119,14 @@
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-oauth2-client</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-oauth2-jose</artifactId>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>

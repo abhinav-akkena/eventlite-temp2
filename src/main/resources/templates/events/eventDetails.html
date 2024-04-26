@@ -5,6 +5,7 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <title th:text="${event != null} ? ${event.name} : 'Event name'">Event name</title> 
+    <meta name="csrf-token" th:content="${_csrf.token}"/>
 </head>
 <body>
     <div th:if="${event != null}" layout:fragment="content" class="container mt-4">
@@ -57,51 +58,78 @@
         <br>
         <div id='map' style="width: 100%; height: 40em; padding-top: 1em;"></div>
         <script th:inline="javascript">
-        /*<![CDATA[*/
-	mapboxgl.accessToken = 'pk.eyJ1IjoiYWFwOTAwMiIsImEiOiJjbHYyYW84eHowOGM0MmlwZm94cXEwbWo1In0.eCue2SRjuxU3jwYyac_vNg';
-    
-    
-    const name = /*[[${event.name}]]*/"";
-    const time = /*[[${event.time}]]*/"";
-    const longitude = /*[[${event.venue.longitude}]]*/"";;
-    const latitude = /*[[${event.venue.latitude}]]*/"";;
+	        /*<![CDATA[*/
+		mapboxgl.accessToken = 'pk.eyJ1IjoiYWFwOTAwMiIsImEiOiJjbHYyYW84eHowOGM0MmlwZm94cXEwbWo1In0.eCue2SRjuxU3jwYyac_vNg';
+	    
+	    
+	    const name = /*[[${event.name}]]*/"";
+	    const time = /*[[${event.time}]]*/"";
+	    const longitude = /*[[${event.venue.longitude}]]*/"";;
+	    const latitude = /*[[${event.venue.latitude}]]*/"";;
+	        
+	    const map = new mapboxgl.Map({
+	        container: 'map',
+	        style: 'mapbox://styles/mapbox/streets-v12',
+	        center: [longitude, latitude],
+	        zoom: 15
+	    });
+	    
+	    const marker1 = new mapboxgl.Marker()
+	        .setLngLat([longitude, latitude])
+	  .setPopup(
+	    new mapboxgl.Popup({ offset: 25 })
+	      .setHTML(
+	        `<h3>${name}</h3><p>${time}</p>`
+	      )
+	  )
+	  .addTo(map);
+	  /*]]>*/
+	      
+	    </script>
         
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [longitude, latitude],
-        zoom: 15
-    });
-    
-    const marker1 = new mapboxgl.Marker()
-        .setLngLat([longitude, latitude])
-  .setPopup(
-    new mapboxgl.Popup({ offset: 25 })
-      .setHTML(
-        `<h3>${name}</h3><p>${time}</p>`
-      )
-  )
-  .addTo(map);
-  /*]]>*/
-      
-    </script>
-    
+        
+        
+        
+        
+        <!-- Share on Mastodon form -->
+         <div class="card mt-3">
+		    <div class="card-body">
+		        <h5 class="card-title">Share Event</h5>
+		        <form id="statusUpdateForm" th:action="@{/events/share-on-mastodon}" method="post">
+		            <div class="form-group">
+		                <input type="text" name="status" class="form-control" id="statusContent" placeholder="Share your thoughts about the event">
+		            </div>
+		            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+		            <input type="hidden" name="eventId" th:value="${event.id}" />
+		            <button type="submit" id="submit_button" class="btn btn-info"><i class="fa-solid fa-feather"></i> Share on Mastodon</button>
+		        </form>
+		        <div th:if="${successMessage}" class="alert alert-success alert-dismissable" role="alert">
+				    <span th:text="${successMessage}">Success! Your message here.</span>
+				    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				        <span aria-hidden="true">&times;</span>
+				    </button>
+				</div>
+						        
+		          <div th:if="${errorMessage}" class="alert alert-danger alert-dismissable" role="alert">
+					   <span th:text="${errorMessage}"></span>
+					   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					   <span aria-hidden="true">&times;</span>
+					   </button>
+				  </div>
+		    </div>
+		</div>
 
-        
-        
-       
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+		
+		<script th:inline="javascript">
+		document.getElementById('statusUpdateForm').addEventListener('submit', function(event) {
+			setTimeout(function() {
+				var content = document.getElementById('statusContent').value;
+				var statusUpdateFeedback = document.getElementById('statusUpdateFeedback');
+				statusUpdateFeedback.innerHTML = '<div class="alert alert-success" role="alert">Post published successfully: ' + content + '</div>';
+				document.getElementById('statusContent').value = '';
+			}, 1000);
+		});
+		</script>
 
         
     </div>
