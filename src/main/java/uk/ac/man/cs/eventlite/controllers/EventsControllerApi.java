@@ -46,7 +46,8 @@ public class EventsControllerApi {
 	public EntityModel<Event> getEvent(@PathVariable("id") long id) {
 		Optional<Event> eventOptional = eventService.findById(id);
 		if (eventOptional.isPresent()) {
-		    return eventAssembler.toModel(eventOptional.get());
+		    return eventAssembler.toModel(eventOptional.get())
+		    		.add(linkTo(methodOn(EventsControllerApi.class).getEvent(id)).slash("venue").withRel("venue"));
 		} else {
 		    throw new EventNotFoundException(id);
 		}
